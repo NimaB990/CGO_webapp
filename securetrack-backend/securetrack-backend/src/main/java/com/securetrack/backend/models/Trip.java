@@ -48,6 +48,11 @@ public class Trip {
     @Column(columnDefinition = "LONGTEXT")
     private String routeCoordinatesJson;
 
+    // 🔴 අලුතින් එකතු කළ කොටස: ආරක්ෂිත මාර්ග කලාපයේ සීමාව (මීටර් වලින්)
+    @Column(name = "allowed_deviation_meters")
+    @Builder.Default
+    private Integer allowedDeviationMeters = 200; 
+
     // ගමනේ තත්ත්වය (PLANNED, IN_TRANSIT, COMPLETED, FLAGGED)
     private String status;
 

@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.securetrack.backend.models.Container;
+import com.securetrack.backend.models.IoTModule;
 import com.securetrack.backend.models.Trip;
 import com.securetrack.backend.repository.ContainerRepository;
+import com.securetrack.backend.repository.IoTModuleRepository;
 import com.securetrack.backend.repository.TripRepository;
 import com.securetrack.backend.service.TripAssignmentService;
 
@@ -30,25 +32,40 @@ public class TripController {
     @Autowired
     private ContainerRepository containerRepository; 
 
-    // Database එකෙන් Trip දත්ත ගන්න මේක අලුතින් Autowire කළා
     @Autowired
     private TripRepository tripRepository;
+
+    @Autowired
+    private IoTModuleRepository iotModuleRepository;
 
     @PostMapping("/assign")
     public ResponseEntity<?> assignTrip(@RequestBody Map<String, Object> payload) {
         try {
             Long containerId = Long.parseLong(payload.get("containerId").toString());
+            Long moduleId = Long.parseLong(payload.get("moduleId").toString());
+            
             double startLat = Double.parseDouble(payload.get("startLat").toString());
             double startLon = Double.parseDouble(payload.get("startLon").toString());
             double endLat = Double.parseDouble(payload.get("endLat").toString());
             double endLon = Double.parseDouble(payload.get("endLon").toString());
             String startName = payload.get("startName").toString();
             String endName = payload.get("endName").toString();
+            
+            // 🔴 අලුතින් එක්කළ දත්ත දෙක ලබා ගැනීම
+            String routeCoordinatesJson = payload.containsKey("routeCoordinatesJson") ? payload.get("routeCoordinatesJson").toString() : null;
+            Integer allowedDeviationMeters = payload.containsKey("allowedDeviationMeters") ? Integer.parseInt(payload.get("allowedDeviationMeters").toString()) : 200;
 
             Container container = containerRepository.findById(containerId)
                     .orElseThrow(() -> new RuntimeException("Container not found!"));
 
-            Trip newTrip = tripAssignmentService.assignNewTrip(container, startLat, startLon, endLat, endLon, startName, endName);
+            IoTModule iotModule = iotModuleRepository.findById(moduleId)
+                    .orElseThrow(() -> new RuntimeException("IoT Module not found!"));
+
+            // 🔴 Service එකට අලුත් දත්ත දෙකත් යැවීම
+            Trip newTrip = tripAssignmentService.assignNewTrip(
+                container, iotModule, startLat, startLon, endLat, endLon, 
+                startName, endName, routeCoordinatesJson, allowedDeviationMeters
+            );
 
             return ResponseEntity.ok(newTrip);
 
@@ -57,11 +74,9 @@ public class TripController {
         }
     }
 
-    // React එකට දත්ත යවන අලුත් GET API එක
     @GetMapping("/container/{containerId}")
     public ResponseEntity<?> getTripForContainer(@PathVariable Long containerId) {
         try {
-            // මෙන්න මේ පේළිය තමයි අලුත් නමට මාරු කළේ
             List<Trip> trips = tripRepository.findByContainer_ContainerIdOrderByIdDesc(containerId);
             
             if (trips.isEmpty()) {

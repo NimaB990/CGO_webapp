@@ -63,8 +63,11 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 
-                // අලුතින් එකතු කළ පේළිය (අපේ අලුත් API එකට අවසර දීම)
+                // Assign Routes සඳහා අවසරය
                 .requestMatchers("/api/trips/**").permitAll()
+                
+                // අලුතින් එකතු කළ පේළිය (IoT Live Tracking දත්ත සඳහා Token නැතුව අවසර දීම)
+                .requestMatchers("/api/monitoring/**").permitAll()
 
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 

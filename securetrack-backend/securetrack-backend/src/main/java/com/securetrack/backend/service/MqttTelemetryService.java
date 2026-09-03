@@ -16,6 +16,7 @@ import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.securetrack.backend.dto.TelemetryPayload;
@@ -29,7 +30,6 @@ import com.securetrack.backend.repository.TrackingLogRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
-
 /**
  * MqttTelemetryService - subscribes to the MQTT 5.0 broker topic that ESP32
  * edge devices publish GPS / magnetic reed-switch / ambient-light telemetry
@@ -41,7 +41,7 @@ import lombok.RequiredArgsConstructor;
  * spring-integration-mqtt, which only supports MQTT 3.1.1) to satisfy the
  * MQTT 5.0 protocol requirement.
  */
-//@Service
+@Service
 @RequiredArgsConstructor
 public class MqttTelemetryService implements MqttCallback {
 
