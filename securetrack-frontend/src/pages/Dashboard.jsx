@@ -1,87 +1,207 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { Package, AlertTriangle, TrendingUp, Clock } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, MapPin, Truck, Activity } from 'lucide-react';
 import LiveMap from '../components/LiveMap';
-// api.js එක import කරගන්න (ඔයාගේ api.js තියෙන තැන අනුව path එක වෙනස් වෙන්න පුළුවන්)
+import AssignRouteModal from '../components/AssignRouteModal';
 import api from '../api'; 
-
-// Fix Leaflet's default marker icon
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
-
-const SRI_LANKA_CENTER = [7.8731, 80.7718];
-
-const FILTERS = ['All', 'Active', 'Alert'];
 
 const ALERT_TONE_CLASSES = {
   red: 'border-l-4 border-red-400 bg-red-50',
   yellow: 'border-l-4 border-amber-400 bg-amber-50',
 };
 
-// මේවා තවම Backend එකෙන් එන්නේ නැති නිසා දැනට තියාගමු
-const STAT_CARDS = [
-  { label: 'Active Shipments', value: '24', icon: Package, tint: 'bg-blue-50 text-blue-600' },
-  { label: 'Alerts', value: '3', icon: AlertTriangle, tint: 'bg-red-50 text-red-500' },
-  { label: 'On-Time Delivery', value: '94%', icon: TrendingUp, tint: 'bg-green-50 text-green-600' },
-  { label: 'Avg Transit Time', value: '4.2h', icon: Clock, tint: 'bg-purple-50 text-purple-600' },
-];
-
-const ACTIVE_ALERTS = [
-  { id: 'CNT-2024-002', title: 'Route Deviation', time: '5 min ago', tone: 'red' },
-  { id: 'CNT-2024-007', title: 'Tamper Alert', time: '12 min ago', tone: 'red' },
-];
-
 function Dashboard() {
-  const [activeFilter, setActiveFilter] = useState('All');
-  
-  // Backend එකෙන් එන Containers ටික දාගන්න State එකක් හදමු
-  const [containers, setContainers] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const role = localStorage.getItem('role') || 'OWNER';
+  const isGlobalRole = role === 'ADMIN' || role === 'CUSTOM_OFFICER';
+  const [containerNumber, setContainerNumber] = useState('');
+  const [hasSearched, setHasSearched] = useState(false);
+  const [activeContainerId, setActiveContainerId] = useState(null);
+  const [trackedContainer, setTrackedContainer] = useState(null);
+  const [containerAlerts, setContainerAlerts] = useState([]);
+  const [isAlertsLoading, setIsAlertsLoading] = useState(false);
+  const [trackingError, setTrackingError] = useState('');
+  const [isTracking, setIsTracking] = useState(false);
+  const [activeContainers, setActiveContainers] = useState([]);
+  const [globalAlerts, setGlobalAlerts] = useState([]);
+  const [isGlobalAlertsLoading, setIsGlobalAlertsLoading] = useState(false);
+  const trackingIntervalRef = useRef(null);
 
-  // Component එක Load වෙද්දී Backend එකෙන් Data ගන්න
+  useEffect(() => () => {
+    if (trackingIntervalRef.current) clearInterval(trackingIntervalRef.current);
+  }, []);
+
   useEffect(() => {
-    const fetchContainers = async () => {
+    if (!isGlobalRole) return undefined;
+
+    const fetchGlobalAlerts = async () => {
+      setIsGlobalAlertsLoading(true);
       try {
-        // ඔයාගේ Backend එකේ URL එක (උදා: /api/containers) මෙතනට දෙන්න
-        const response = await api.get('/api/containers'); 
-        setContainers(response.data);
+        const response = await api.get('/api/alerts');
+        const alerts = response.data?.data || response.data;
+        setGlobalAlerts(Array.isArray(alerts) ? alerts : []);
       } catch (error) {
-        console.error("Error fetching containers:", error);
+        console.error('Failed to fetch global alerts:', error);
+        setGlobalAlerts([]);
       } finally {
-        setIsLoading(false);
+        setIsGlobalAlertsLoading(false);
       }
     };
 
-    fetchContainers();
-  }, []);
+    fetchGlobalAlerts();
+    return undefined;
+  }, [isGlobalRole]);
+
+  const fetchTrackedContainer = async (containerNo) => {
+    const response = await api.get(`/api/dashboard/track/${encodeURIComponent(containerNo)}`);
+    const data = response.data?.data || response.data;
+    const location = data.location || data.gps || data.latestLocation || data;
+
+    return {
+      ...data,
+      latitude: Number(data.latitude ?? data.lat ?? location.latitude ?? location.lat),
+      longitude: Number(data.longitude ?? data.lng ?? data.lon ?? location.longitude ?? location.lng ?? location.lon),
+    };
+  };
+
+  const fetchContainerAlerts = async (containerNo) => {
+    setIsAlertsLoading(true);
+    try {
+      const response = await api.get(`/api/alerts/container/${encodeURIComponent(containerNo)}`);
+      const alerts = response.data?.data || response.data;
+      setContainerAlerts(Array.isArray(alerts) ? alerts : []);
+    } catch (error) {
+      console.error('Failed to fetch container alerts:', error);
+      setContainerAlerts([]);
+    } finally {
+      setIsAlertsLoading(false);
+    }
+  };
+
+  const handleTrackContainer = async (event) => {
+    event.preventDefault();
+    const containerNo = containerNumber.trim();
+    if (!containerNo) {
+      setHasSearched(false);
+      setActiveContainerId(null);
+      setTrackedContainer(null);
+      setTrackingError('Enter a valid Container ID.');
+      return;
+    }
+
+    if (trackingIntervalRef.current) clearInterval(trackingIntervalRef.current);
+    trackingIntervalRef.current = null;
+    setHasSearched(false);
+    setActiveContainerId(null);
+    setTrackedContainer(null);
+    setTrackingError('');
+    setIsTracking(true);
+    setContainerAlerts([]);
+
+    const pollTrackingData = async () => {
+      try {
+        const trackedData = await fetchTrackedContainer(containerNo);
+        if (!Number.isFinite(trackedData.latitude) || !Number.isFinite(trackedData.longitude)) {
+          throw new Error('Tracking response did not include valid GPS coordinates.');
+        }
+        setTrackedContainer(trackedData);
+        setTrackingError('');
+        return trackedData;
+      } catch (error) {
+        console.error('Failed to track container:', error);
+        setHasSearched(false);
+        setTrackedContainer(null);
+        setTrackingError(error.response?.status === 404
+          ? 'Active trip not found for this Container ID.'
+          : 'Unable to find live tracking data for this Container ID.');
+        return null;
+      }
+    };
+
+    try {
+      const initialTrackingData = await pollTrackingData();
+      if (!initialTrackingData) return;
+      setActiveContainerId(containerNo);
+      setHasSearched(true);
+      await fetchContainerAlerts(containerNo);
+      trackingIntervalRef.current = setInterval(pollTrackingData, 10000);
+    } catch (error) {
+      console.error('Failed to track container:', error);
+      if (error.response?.status === 404) {
+        setTrackingError('Active trip not found for this Container ID.');
+      } else {
+        setTrackingError('Unable to find live tracking data for this Container ID.');
+      }
+    } finally {
+      setIsTracking(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* ===================== Stat cards ===================== */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {STAT_CARDS.map(({ label, value, icon: Icon, tint }) => (
-          <div key={label} className="flex items-start justify-between rounded-xl bg-white p-5 shadow-sm">
-            <div>
-              <p className="text-sm text-slate-500">{label}</p>
-              <p className="mt-1 text-2xl font-bold text-slate-900">
-                  {/* Active Shipments ගාණ ඇත්තටම පෙන්නමු */}
-                  {label === 'Active Shipments' ? containers.length : value}
-              </p>
-            </div>
-            <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${tint}`}>
-              <Icon size={18} />
-            </span>
-          </div>
-        ))}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">Dashboard</h2>
+          <p className="mt-1 text-sm text-slate-500">Monitor active container routes and alerts.</p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        {role === 'OWNER' && <form onSubmit={handleTrackContainer} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <label htmlFor="tracking-container-number" className="sr-only">Container ID</label>
+            <input
+              id="tracking-container-number"
+              type="search"
+              value={containerNumber}
+              onChange={(event) => setContainerNumber(event.target.value)}
+              placeholder="Container ID"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15 sm:w-48"
+            />
+            <button type="submit" disabled={isTracking && !trackingError} className="flex items-center justify-center gap-2 rounded-lg bg-[#0B3A5A] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#092f49] disabled:cursor-wait disabled:opacity-70">
+              <Search size={16} />
+              {isTracking && !trackingError ? 'Tracking...' : 'Track Container'}
+            </button>
+        </form>}
+        </div>
       </div>
 
-      {/* ===================== Main grid ===================== */}
+      {trackingError && (
+        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{trackingError}</p>
+      )}
+
+      {role === 'OWNER' && !hasSearched && !trackingError && (
+        <p className="rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          Please enter a Container ID to view live tracking and alerts.
+        </p>
+      )}
+
+      {isGlobalRole && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {[
+            ['Active Containers', activeContainers.length, Truck],
+            ['Active Alerts', globalAlerts.length, Activity],
+            ['Monitored Routes', new Set(activeContainers.map((container) => container.route || container.routeName)).size, MapPin],
+          ].map(([label, value, Icon]) => (
+            <div key={label} className="rounded-xl bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-500"><Icon size={15} />{label}</div>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {hasSearched && activeContainerId && trackedContainer && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {[
+            ['Vehicle Number', trackedContainer.vehicleNumber || trackedContainer.vehicleNo || trackedContainer.truckNumber || trackedContainer.truckNo || 'N/A', Truck],
+            ['Route', trackedContainer.route || trackedContainer.routeName || trackedContainer.assignedRoute || 'N/A', MapPin],
+            ['Status', trackedContainer.status || 'Unknown', Activity],
+          ].map(([label, value, Icon]) => (
+            <div key={label} className="rounded-xl bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-500"><Icon size={15} />{label}</div>
+              <p className="mt-2 break-words text-sm font-semibold text-slate-900">{value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {(
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* ---- Left: map ---- */}
         <div className="relative overflow-hidden rounded-xl bg-white shadow-sm lg:col-span-2">
@@ -89,19 +209,14 @@ function Dashboard() {
             <p className="text-sm font-semibold text-slate-900">Sri Lanka – Live Tracking</p>
             <p className="text-xs text-slate-400">Updated just now</p>
           </div>
-          {/* අන්න ඒකට යටින් අපි හදපු Live Map Component එක දානවා */}
-          <LiveMap />
-
-          <div className="h-[420px] w-full lg:h-[480px]">
-            <MapContainer center={SRI_LANKA_CENTER} zoom={7} scrollWheelZoom className="h-full w-full">
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <Marker position={SRI_LANKA_CENTER}>
-                <Popup>Headquarters - Sri Lanka Customs</Popup>
-              </Marker>
-            </MapContainer>
+          
+          {/* අලුත් Live Map Component එක පමණි (පරණ සිතියම ඉවත් කර ඇත) */}
+          <div className="h-[420px] w-full lg:h-[500px]">
+            <LiveMap
+              trackedContainer={trackedContainer}
+              showActiveContainers={isGlobalRole}
+              onActiveContainersChange={setActiveContainers}
+            />
           </div>
 
           <div className="absolute bottom-4 left-4 z-[500] rounded-lg bg-white/95 px-4 py-3 text-sm shadow-sm backdrop-blur">
@@ -120,85 +235,15 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* ---- Right: filters, alerts, shipments ---- */}
-        <div className="space-y-6">
-          <div className="rounded-xl bg-white p-4 shadow-sm">
-            <p className="mb-3 text-sm font-semibold text-slate-900">Filter Status</p>
-            <div className="flex flex-wrap gap-2">
-              {FILTERS.map((filter) => (
-                <button
-                  key={filter}
-                  type="button"
-                  onClick={() => setActiveFilter(filter)}
-                  className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                    activeFilter === filter
-                      ? 'bg-[#0B3A5A] text-white'
-                      : 'bg-gray-100 text-slate-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
+        {isGlobalRole && (
+          <div className="lg:col-span-1">
+            <AssignRouteModal onAssignSuccess={() => undefined} />
           </div>
+        )}
 
-          <div className="rounded-xl bg-white p-4 shadow-sm">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-900">Active Alerts</p>
-              <a href="#view-all-alerts" className="text-xs font-medium text-[#0B3A5A] hover:underline">
-                View all
-              </a>
-            </div>
-            <ul className="space-y-2">
-              {ACTIVE_ALERTS.map((alert) => (
-                <li key={alert.id} className={`rounded-lg px-3 py-2.5 ${ALERT_TONE_CLASSES[alert.tone]}`}>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-slate-900">{alert.title}</p>
-                    <span className="text-xs text-slate-500">{alert.time}</span>
-                  </div>
-                  <p className="mt-0.5 text-xs text-slate-500">{alert.id}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* මෙන්න මෙතන තමයි Backend එකේ Data පෙන්නන්නේ */}
-          <div className="rounded-xl bg-white p-4 shadow-sm">
-            <p className="mb-3 text-sm font-semibold text-slate-900">Active Shipments (Live)</p>
-            {isLoading ? (
-                <p className="text-sm text-slate-500">Loading containers...</p>
-            ) : (
-                <ul className="space-y-3">
-                  {containers.length === 0 ? (
-                      <p className="text-sm text-slate-500">No active shipments found.</p>
-                  ) : (
-                      containers.map((container) => (
-                        <li key={container.containerId} className="rounded-lg border border-gray-100 p-3">
-                          <div className="flex items-center justify-between">
-                            <span className="flex items-center gap-2 text-sm font-medium text-slate-900">
-                              <Package size={15} className="text-slate-400" />
-                              {/* මෙතනට containerCode එක දාමු */}
-                              {container.containerCode || 'N/A'}
-                            </span>
-                            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                container.status === 'COMPLETED' ? 'bg-slate-100 text-slate-600' : 
-                                container.status === 'ALERT' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
-                            }`}>
-                              {container.status || 'Active'}
-                            </span>
-                          </div>
-                          <p className="mt-1.5 text-xs text-slate-500">
-                              {/* origin එකක් නැති නිසා assignedRoute එක පාවිච්චි කරමු */}
-                              {container.assignedRoute || 'Unknown Route'} → {container.destination || 'Unknown'}
-                          </p>
-                        </li>
-                      ))
-                  )}
-                </ul>
-            )}
-          </div>
-        </div>
       </div>
+      )}
+
     </div>
   );
 }

@@ -139,6 +139,12 @@ public class MqttTelemetryService implements MqttCallback {
         module.setBatteryLevel(payload.getBatteryLevel());
         module.setLightSensorActive(payload.getLightSensorActive());
         module.setMagnetSensorActive(payload.getMagnetSensorActive());
+        if (payload.getLatitude() != null) {
+            module.setLatitude(payload.getLatitude());
+        }
+        if (payload.getLongitude() != null) {
+            module.setLongitude(payload.getLongitude());
+        }
         module.setLastSeen(LocalDateTime.now());
         ioTModuleRepository.save(module);
 

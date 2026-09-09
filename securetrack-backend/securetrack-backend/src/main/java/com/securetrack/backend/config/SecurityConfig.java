@@ -68,6 +68,7 @@ public class SecurityConfig {
                 
                 // අලුතින් එකතු කළ පේළිය (IoT Live Tracking දත්ත සඳහා Token නැතුව අවසර දීම)
                 .requestMatchers("/api/monitoring/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/dashboard/track/**").permitAll()
 
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
@@ -79,7 +80,10 @@ public class SecurityConfig {
 
                 .requestMatchers(HttpMethod.POST, "/api/containers/*/complete").hasAnyRole("ADMIN", "CUSTOM_OFFICER", "INSPECTOR")
 
-                .requestMatchers("/api/alerts/**").hasAnyRole("ADMIN", "CUSTOM_OFFICER", "INSPECTOR")
+                .requestMatchers(HttpMethod.GET, "/api/alerts/**")
+                    .hasAnyRole("ADMIN", "CUSTOM_OFFICER", "INSPECTOR", "OWNER")
+                .requestMatchers(HttpMethod.PUT, "/api/alerts/**")
+                    .hasAnyRole("ADMIN", "CUSTOM_OFFICER", "INSPECTOR")
 
                 .requestMatchers(HttpMethod.GET, "/api/containers/**").authenticated()
 

@@ -3,6 +3,7 @@ package com.securetrack.backend.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,7 +14,10 @@ import com.securetrack.backend.dto.AlertResponse;
 import com.securetrack.backend.exception.ResourceNotFoundException;
 import com.securetrack.backend.models.Alert;
 import com.securetrack.backend.models.AlertStatus;
+import com.securetrack.backend.models.Trip;
 import com.securetrack.backend.repository.AlertRepository;
+import com.securetrack.backend.repository.TripRepository;
+import com.securetrack.backend.security.UserPrincipal;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,23 +28,48 @@ import lombok.RequiredArgsConstructor;
 public class AlertController {
 
     private final AlertRepository alertRepository;
+    private final TripRepository tripRepository;
 
     @GetMapping
-    public ResponseEntity<List<AlertResponse>> getAllAlerts() {
-        return ResponseEntity.ok(alertRepository.findAllByOrderBySentAtDesc().stream()
+        public ResponseEntity<List<AlertResponse>> getAllAlerts(
+            @AuthenticationPrincipal UserPrincipal principal) {
+        List<Alert> alerts = isOwner(principal)
+            ? alertRepository.findByContainer_Owner_OwnerIdOrderBySentAtDesc(principal.getId())
+            : alertRepository.findAllByOrderBySentAtDesc();
+        return ResponseEntity.ok(alerts.stream()
                 .map(this::toResponse).toList());
     }
 
     @GetMapping("/active")
-    public ResponseEntity<List<AlertResponse>> getActiveAlerts() {
-        return ResponseEntity.ok(alertRepository.findByStatusOrderBySentAtDesc(AlertStatus.PENDING).stream()
+        public ResponseEntity<List<AlertResponse>> getActiveAlerts(
+            @AuthenticationPrincipal UserPrincipal principal) {
+        List<Alert> alerts = isOwner(principal)
+            ? alertRepository.findByStatusAndContainer_Owner_OwnerIdOrderBySentAtDesc(
+                AlertStatus.PENDING, principal.getId())
+            : alertRepository.findByStatusOrderBySentAtDesc(AlertStatus.PENDING);
+        return ResponseEntity.ok(alerts.stream()
                 .map(this::toResponse).toList());
     }
 
-    @GetMapping("/container/{containerId}")
-    public ResponseEntity<List<AlertResponse>> getAlertsForContainer(@PathVariable Long containerId) {
-        return ResponseEntity.ok(alertRepository.findByContainer_ContainerIdOrderBySentAtDesc(containerId).stream()
+        @GetMapping("/container/{containerId}")
+    public ResponseEntity<List<AlertResponse>> getAlertsForContainer(
+            @PathVariable Long containerId) {
+        List<Trip> activeTrips = tripRepository.findActiveByContainerId(containerId, "COMPLETED");
+        if (activeTrips.isEmpty()) {
+            throw new ResourceNotFoundException("Active trip not found for container: " + containerId);
+        }
+
+        Trip activeTrip = activeTrips.get(0);
+        List<Alert> alerts = activeTrip.getStartTime() == null
+            ? List.of()
+            : alertRepository.findByContainer_ContainerIdAndSentAtGreaterThanEqualOrderBySentAtDesc(
+                containerId, activeTrip.getStartTime());
+        return ResponseEntity.ok(alerts.stream()
                 .map(this::toResponse).toList());
+    }
+
+    private boolean isOwner(UserPrincipal principal) {
+        return principal != null && "OWNER".equals(principal.getRole());
     }
 
     @PutMapping("/{alertId}/acknowledge")

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { User, Bell, Shield, Globe, Mail, Phone, CheckCircle, Key, Lock } from 'lucide-react';
+import { User, Bell, Shield, Globe, Mail, Phone, CheckCircle, Key, Lock, Upload, Trash2 } from 'lucide-react';
 import api from '../api';
+import { applyUserPreferences, getStoredLanguage, getStoredTimezone } from '../userPreferences';
 
 const TABS = [
   { key: 'profile', label: 'Profile', icon: User },
@@ -17,6 +18,7 @@ function Settings() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [profileImage, setProfileImage] = useState('');
 
   // --- Notification States ---
   const [emailAlerts, setEmailAlerts] = useState(true);
@@ -30,8 +32,8 @@ function Settings() {
   const [twoFactorAuth, setTwoFactorAuth] = useState(false);
 
   // --- Preference States ---
-  const [language, setLanguage] = useState('English');
-  const [timezone, setTimezone] = useState('Asia/Colombo');
+  const [language, setLanguage] = useState(() => getStoredLanguage());
+  const [timezone, setTimezone] = useState(() => getStoredTimezone());
 
   // --- UI States ---
   const [isLoading, setIsLoading] = useState(true);
@@ -40,6 +42,8 @@ function Settings() {
 
   // Component එක Load වෙද්දී Database එකෙන් සියලුම Settings ගෙන ඒම
   useEffect(() => {
+    applyUserPreferences(getStoredLanguage(), getStoredTimezone());
+
     const fetchProfile = async () => {
       try {
         const response = await api.get('/api/users/me');
@@ -49,14 +53,18 @@ function Settings() {
         setLastName(data.lastName || '');
         setEmail(data.email || '');
         setPhone(data.phone || '');
+        setProfileImage(data.profileImage || localStorage.getItem('securetrack-profile-image') || '');
         
         setEmailAlerts(data.emailAlerts ?? true);
         setSmsAlerts(data.smsAlerts ?? false);
         setSystemAlerts(data.systemAlerts ?? true);
         
         setTwoFactorAuth(data.twoFactorAuth ?? false);
-        setLanguage(data.language || 'English');
-        setTimezone(data.timezone || 'Asia/Colombo');
+        const savedLanguage = localStorage.getItem('securetrack-language') || data.language || 'English';
+        const savedTimezone = localStorage.getItem('securetrack-timezone') || data.timezone || 'Asia/Colombo';
+        setLanguage(savedLanguage);
+        setTimezone(savedTimezone);
+        applyUserPreferences(savedLanguage, savedTimezone);
       } catch (error) {
         console.error("Error fetching settings:", error);
       } finally {
@@ -66,10 +74,54 @@ function Settings() {
     fetchProfile();
   }, []);
 
+  const handleLanguageChange = (event) => {
+    const nextLanguage = event.target.value;
+    setLanguage(nextLanguage);
+    applyUserPreferences(nextLanguage, timezone);
+  };
+
+  const handleTimezoneChange = (event) => {
+    const nextTimezone = event.target.value;
+    setTimezone(nextTimezone);
+    applyUserPreferences(language, nextTimezone);
+  };
+
+  const handleProfileImageChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file.');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Please select an image smaller than 2 MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const imageData = String(reader.result);
+      setProfileImage(imageData);
+      localStorage.setItem('securetrack-profile-image', imageData);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  };
+
+  const handleRemoveProfileImage = () => {
+    setProfileImage('');
+    localStorage.removeItem('securetrack-profile-image');
+  };
+
   // ඕනෑම Tab එකක වෙනස්කම් ඇත්තටම Database එකේ Save කිරීම
   const handleSave = async (e, section) => {
     e.preventDefault();
     setIsSaving(true);
+    if (section === 'preferences') {
+      applyUserPreferences(language, timezone);
+    }
     
     try {
       // Security Tab එකේ Password අලුත් කරනවා නම් විතරක් මේ කොටස වැඩ කරයි
@@ -148,9 +200,26 @@ function Settings() {
             )}
           </div>
           <form className="px-6 py-8" onSubmit={(e) => handleSave(e, 'profile')}>
-            <div className="mb-8 flex justify-center">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#0B3A5A] text-xl font-semibold text-white">
-                {initials}
+            <div className="mb-8 flex flex-col items-center justify-center gap-3">
+              {profileImage ? (
+                <img src={profileImage} alt="Profile" className="h-20 w-20 rounded-full object-cover ring-4 ring-slate-100" />
+              ) : (
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#0B3A5A] text-xl font-semibold text-white">
+                  {initials}
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <label htmlFor="profile-image" className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50">
+                  <Upload size={14} />
+                  Change photo
+                </label>
+                <input id="profile-image" type="file" accept="image/*" onChange={handleProfileImageChange} className="sr-only" />
+                {profileImage && (
+                  <button type="button" onClick={handleRemoveProfileImage} className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition-colors hover:bg-red-50">
+                    <Trash2 size={14} />
+                    Remove
+                  </button>
+                )}
               </div>
             </div>
             <div className="mx-auto grid max-w-xl grid-cols-1 gap-5 sm:grid-cols-2">
@@ -305,7 +374,7 @@ function Settings() {
               
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-700">System Language</label>
-                <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15">
+                <select value={language} onChange={handleLanguageChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15">
                   <option value="English">English</option>
                   <option value="Sinhala">සිංහල (Sinhala)</option>
                   <option value="Tamil">தமிழ் (Tamil)</option>
@@ -317,7 +386,7 @@ function Settings() {
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-700">Timezone</label>
-                <select value={timezone} onChange={(e) => setTimezone(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15">
+                <select value={timezone} onChange={handleTimezoneChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15">
                   <option value="Asia/Colombo">Asia/Colombo (IST)</option>
                   <option value="UTC">UTC (Universal Time)</option>
                   <option value="Asia/Singapore">Asia/Singapore (SGT)</option>

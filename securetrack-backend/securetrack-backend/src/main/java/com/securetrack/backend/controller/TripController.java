@@ -5,24 +5,26 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.securetrack.backend.dto.TripTrackingResponse;
+import com.securetrack.backend.exception.ResourceNotFoundException;
 import com.securetrack.backend.models.Container;
 import com.securetrack.backend.models.IoTModule;
 import com.securetrack.backend.models.Trip;
 import com.securetrack.backend.repository.ContainerRepository;
 import com.securetrack.backend.repository.IoTModuleRepository;
 import com.securetrack.backend.repository.TripRepository;
+import com.securetrack.backend.security.UserPrincipal;
 import com.securetrack.backend.service.TripAssignmentService;
 
 @RestController
-@RequestMapping("/api/trips")
 @CrossOrigin(origins = "http://localhost:3000")
 public class TripController {
 
@@ -38,7 +40,7 @@ public class TripController {
     @Autowired
     private IoTModuleRepository iotModuleRepository;
 
-    @PostMapping("/assign")
+    @PostMapping("/api/trips/assign")
     public ResponseEntity<?> assignTrip(@RequestBody Map<String, Object> payload) {
         try {
             Long containerId = Long.parseLong(payload.get("containerId").toString());
@@ -74,10 +76,17 @@ public class TripController {
         }
     }
 
-    @GetMapping("/container/{containerId}")
-    public ResponseEntity<?> getTripForContainer(@PathVariable Long containerId) {
+    @GetMapping("/api/trips/container/{containerId}")
+    public ResponseEntity<?> getTripForContainer(@PathVariable Long containerId,
+                                                  @AuthenticationPrincipal UserPrincipal principal) {
         try {
-            List<Trip> trips = tripRepository.findByContainer_ContainerIdOrderByIdDesc(containerId);
+            List<Trip> trips;
+            if (principal != null && "OWNER".equals(principal.getRole())) {
+            trips = tripRepository.findByContainer_ContainerIdAndContainer_Owner_OwnerIdOrderByIdDesc(
+                containerId, principal.getId());
+            } else {
+            trips = tripRepository.findByContainer_ContainerIdOrderByIdDesc(containerId);
+            }
             
             if (trips.isEmpty()) {
                 return ResponseEntity.notFound().build();
@@ -88,5 +97,30 @@ public class TripController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error fetching trip: " + e.getMessage());
         }
+    }
+
+        @GetMapping("/api/dashboard/track/{containerId}")
+    public ResponseEntity<TripTrackingResponse> trackTrip(@PathVariable Long containerId) {
+        List<Trip> activeTrips = tripRepository.findActiveByContainerId(containerId, "COMPLETED");
+        if (activeTrips.isEmpty()) {
+            throw new ResourceNotFoundException("Active trip not found for container: " + containerId);
+        }
+
+        Trip trip = activeTrips.get(0);
+        Container container = trip.getContainer();
+        IoTModule iotModule = container.getIotModule();
+        String currentStatus = container.getStatus() != null ? container.getStatus().name() : trip.getStatus();
+        return ResponseEntity.ok(TripTrackingResponse.builder()
+                .trackingReference(trip.getTrackingReference())
+                .latitude(iotModule != null ? iotModule.getLatitude() : null)
+                .longitude(iotModule != null ? iotModule.getLongitude() : null)
+                .vehicleNumber(container.getDriver() != null ? container.getDriver().getVehicleNo() : null)
+            .truckNumber(container.getDriver() != null ? container.getDriver().getVehicleNo() : null)
+                .containerNumber(container.getContainerCode())
+                .startLocation(trip.getStartLocationName())
+                .endLocation(trip.getEndLocationName())
+            .currentStatus(currentStatus)
+            .status(currentStatus)
+                .build());
     }
 }

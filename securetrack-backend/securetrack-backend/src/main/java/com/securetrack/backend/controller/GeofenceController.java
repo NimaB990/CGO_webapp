@@ -50,6 +50,8 @@ public class GeofenceController {
         existing.setSignalStrength(updated.getSignalStrength());
         existing.setStartPoint(updated.getStartPoint());
         existing.setEndPoint(updated.getEndPoint());
+        existing.setContainerNo(updated.getContainerNo());
+        existing.setIotId(updated.getIotId());
 
         return ResponseEntity.ok(geofenceRepository.save(existing));
     }

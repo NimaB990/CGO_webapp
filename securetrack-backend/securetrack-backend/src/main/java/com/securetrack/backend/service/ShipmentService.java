@@ -1,16 +1,31 @@
 package com.securetrack.backend.service;
 
-import com.securetrack.backend.dto.ContainerInitRequest;
-import com.securetrack.backend.exception.BadRequestException;
-import com.securetrack.backend.exception.ResourceNotFoundException;
-import com.securetrack.backend.models.*;
-import com.securetrack.backend.repository.*;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import com.securetrack.backend.dto.ContainerInitRequest;
+import com.securetrack.backend.exception.BadRequestException;
+import com.securetrack.backend.exception.ResourceNotFoundException;
+import com.securetrack.backend.models.Container;
+import com.securetrack.backend.models.ContainerStatus;
+import com.securetrack.backend.models.Driver;
+import com.securetrack.backend.models.Geofence;
+import com.securetrack.backend.models.IoTModule;
+import com.securetrack.backend.models.Owner;
+import com.securetrack.backend.models.Staff;
+import com.securetrack.backend.models.TrackingLog;
+import com.securetrack.backend.repository.ContainerRepository;
+import com.securetrack.backend.repository.DriverRepository;
+import com.securetrack.backend.repository.GeofenceRepository;
+import com.securetrack.backend.repository.IoTModuleRepository;
+import com.securetrack.backend.repository.OwnerRepository;
+import com.securetrack.backend.repository.TrackingLogRepository;
+import com.securetrack.backend.security.UserPrincipal;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * ShipmentService - implements the "Initialize Container Tracking" and
@@ -113,20 +128,26 @@ public class ShipmentService {
         return saved;
     }
 
-    public Container getContainer(Long containerId) {
-        return containerRepository.findById(containerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Container not found: " + containerId));
+    public Container getContainer(Long containerId, UserPrincipal principal) {
+        return (ownerScoped(principal)
+            ? containerRepository.findByContainerIdAndOwner_OwnerId(containerId, principal.getId())
+            : containerRepository.findById(containerId))
+            .orElseThrow(() -> new ResourceNotFoundException("Container not found: " + containerId));
     }
 
-    public List<Container> getAllContainers() {
-        return containerRepository.findAll();
+    public List<Container> getAllContainers(UserPrincipal principal) {
+        return ownerScoped(principal)
+                ? containerRepository.findByOwner_OwnerId(principal.getId())
+                : containerRepository.findAll();
     }
 
-    public List<TrackingLog> getAssignedRoute(Long containerId) {
-        if (!containerRepository.existsById(containerId)) {
-            throw new ResourceNotFoundException("Container not found: " + containerId);
-        }
+    public List<TrackingLog> getAssignedRoute(Long containerId, UserPrincipal principal) {
+        getContainer(containerId, principal);
         return trackingLogRepository.findByContainer_ContainerIdOrderByStartTimeDesc(containerId);
+    }
+
+    private boolean ownerScoped(UserPrincipal principal) {
+        return principal != null && "OWNER".equals(principal.getRole());
     }
 
     private String geofenceStartOrNull(Geofence geofence) {

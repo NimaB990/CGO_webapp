@@ -1,6 +1,7 @@
 package com.securetrack.backend.models;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +28,9 @@ public class Trip {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "tracking_reference", nullable = false, unique = true, length = 36)
+    private String trackingReference;
 
     // Container එකත් එක්ක තියෙන සම්බන්ධය (Many Trips -> One Container)
     @ManyToOne
@@ -59,4 +64,11 @@ public class Trip {
     // ගමන් ආරම්භ කළ සහ අවසන් කළ වෙලාවන්
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+
+    @PrePersist
+    protected void onCreate() {
+        if (trackingReference == null || trackingReference.isBlank()) {
+            trackingReference = UUID.randomUUID().toString();
+        }
+    }
 }

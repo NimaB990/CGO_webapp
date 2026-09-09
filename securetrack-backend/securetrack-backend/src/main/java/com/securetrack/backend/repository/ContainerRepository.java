@@ -19,5 +19,6 @@ public interface ContainerRepository extends JpaRepository<Container, Long> {
     Optional<Container> findByIotModule_DeviceUid(String deviceUid);
     List<Container> findByStatus(ContainerStatus status);
     List<Container> findByOwner_OwnerId(Long ownerId);
+    Optional<Container> findByContainerIdAndOwner_OwnerId(Long containerId, Long ownerId);
     List<Container> findByDriver_DriverId(Long driverId);
 }

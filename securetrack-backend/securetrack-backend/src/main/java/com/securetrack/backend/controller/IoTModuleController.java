@@ -1,22 +1,18 @@
 package com.securetrack.backend.controller;
 
-import java.util.List;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
 import com.securetrack.backend.dto.TelemetryPayload;
 import com.securetrack.backend.exception.BadRequestException;
 import com.securetrack.backend.exception.ResourceNotFoundException;
 import com.securetrack.backend.models.IoTModule;
 import com.securetrack.backend.repository.IoTModuleRepository;
 import com.securetrack.backend.service.MqttTelemetryService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+import java.util.List;
 
 /**
  * IoTModuleController - registers ESP32 edge devices (so they can be linked
