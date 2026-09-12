@@ -63,10 +63,26 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 
+                .requestMatchers(HttpMethod.GET, "/api/trips/driver/active").hasRole("DRIVER")
+                .requestMatchers(HttpMethod.GET, "/api/trips/active")
+                    .hasAnyRole("ADMIN", "DRIVER", "OWNER", "CUSTOM_OFFICER", "INSPECTOR")
+                .requestMatchers(HttpMethod.GET, "/api/trips/debug/vehicles")
+                    .hasAnyRole("ADMIN", "CUSTOM_OFFICER")
+                .requestMatchers(HttpMethod.GET, "/api/trips/vehicle/*/active")
+                    .hasAnyRole("DRIVER", "ADMIN", "OWNER", "CUSTOM_OFFICER")
+                .requestMatchers(HttpMethod.PUT, "/api/trips/*/status").hasRole("DRIVER")
+                .requestMatchers(HttpMethod.POST, "/api/alerts/driver-report").hasRole("DRIVER")
+
                 // Assign Routes සඳහා අවසරය
                 .requestMatchers("/api/trips/**").permitAll()
                 
                 // අලුතින් එකතු කළ පේළිය (IoT Live Tracking දත්ත සඳහා Token නැතුව අවසර දීම)
+                .requestMatchers(HttpMethod.GET, "/api/monitoring/vehicle/**")
+                    .hasAnyRole("ADMIN", "DRIVER", "OWNER", "CUSTOM_OFFICER", "INSPECTOR")
+                .requestMatchers(HttpMethod.GET, "/api/monitoring/trip/**")
+                    .hasAnyRole("ADMIN", "DRIVER", "OWNER", "CUSTOM_OFFICER", "INSPECTOR")
+                .requestMatchers(HttpMethod.GET, "/api/monitoring/live-locations")
+                    .hasAnyRole("ADMIN", "DRIVER", "OWNER", "CUSTOM_OFFICER", "INSPECTOR")
                 .requestMatchers("/api/monitoring/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/dashboard/track/**").permitAll()
 
@@ -81,7 +97,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/containers/*/complete").hasAnyRole("ADMIN", "CUSTOM_OFFICER", "INSPECTOR")
 
                 .requestMatchers(HttpMethod.GET, "/api/alerts/**")
-                    .hasAnyRole("ADMIN", "CUSTOM_OFFICER", "INSPECTOR", "OWNER")
+                    .hasAnyRole("ADMIN", "DRIVER", "CUSTOM_OFFICER", "INSPECTOR", "OWNER")
                 .requestMatchers(HttpMethod.PUT, "/api/alerts/**")
                     .hasAnyRole("ADMIN", "CUSTOM_OFFICER", "INSPECTOR")
 

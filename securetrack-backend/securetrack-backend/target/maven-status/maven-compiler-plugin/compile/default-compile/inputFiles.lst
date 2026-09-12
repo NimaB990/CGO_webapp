@@ -14,6 +14,7 @@ F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\ApiResponse.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\AssignRouteRequest.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\ContainerInitRequest.java
+F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\DriverEmergencyRequest.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\LiveLocationResponse.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\LocationUpdateRequest.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\LoginRequest.java
@@ -21,6 +22,8 @@ F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\ProfileDTO.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\ReportSummaryDTO.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\TelemetryPayload.java
+F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\TripAssignmentRequest.java
+F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\TripStatusUpdateRequest.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\TripTrackingResponse.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\UserCreateRequest.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\exception\BadRequestException.java
@@ -44,6 +47,7 @@ F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\models\StaffRole.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\models\TrackingLog.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\models\Trip.java
+F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\models\TripLocation.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\repository\AdminRepository.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\repository\AlertRepository.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\repository\AuditLogRepository.java
@@ -56,6 +60,7 @@ F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\repository\OwnerRepository.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\repository\StaffRepository.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\repository\TrackingLogRepository.java
+F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\repository\TripLocationRepository.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\repository\TripRepository.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\SecureTrackApplication.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\security\CustomUserDetailsService.java
@@ -71,4 +76,5 @@ F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\service\SecurityMonitoringService.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\service\ShipmentService.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\service\TripAssignmentService.java
+F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\service\TripService.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\service\UserManagementService.java

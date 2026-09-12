@@ -6,5 +6,6 @@ public enum AlertType {
     LOW_BATTERY,
     SEAL_BROKEN,
     GEOFENCE_EXIT,
+    DRIVER_EMERGENCY,
     OTHER
 }

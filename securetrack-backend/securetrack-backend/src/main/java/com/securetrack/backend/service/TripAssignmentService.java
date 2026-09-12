@@ -1,6 +1,5 @@
 package com.securetrack.backend.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,8 @@ public class TripAssignmentService {
     public Trip assignNewTrip(Container container, IoTModule iotModule, 
                               double startLat, double startLon, double endLat, double endLon, 
                               String startName, String endName, 
-                              String routeCoordinatesJson, Integer allowedDeviationMeters) {
+                              String routeCoordinatesJson, Integer allowedDeviationMeters,
+                              String vehicleNumber) {
         
         // 1. Container එකට IoT Module (ESP32 ඩිවයිස්) එක සම්බන්ධ කර Database එකේ Update කිරීම
         if (iotModule != null) {
@@ -77,8 +77,12 @@ public class TripAssignmentService {
                 .routeCoordinatesJson(finalRouteJson)
                 .allowedDeviationMeters(allowedDeviationMeters != null ? allowedDeviationMeters : 200)
                 .status("PLANNED")
-                .startTime(LocalDateTime.now())
                 .build();
+
+            if (vehicleNumber == null || vehicleNumber.isBlank()) {
+                throw new IllegalArgumentException("vehicleNumber is required");
+            }
+            newTrip.setVehicleNumber(vehicleNumber.trim().toUpperCase());
 
         Trip savedTrip = tripRepository.save(newTrip);
 

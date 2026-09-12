@@ -7,6 +7,7 @@ import Alerts from './pages/Alerts';
 import AdminPanel from './pages/AdminPanel';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import DriverDashboard from './pages/DriverDashboard';
 
 /**
  * RequireAuth
@@ -42,6 +43,7 @@ function App() {
           <Route path="admin" element={<AdminPanel />} />
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="driver" element={<DriverDashboard />} />
         </Route>
 
         {/* Fallback: any unknown URL redirects to sign-in */}

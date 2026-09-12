@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Users, Map, Activity, Search, Plus, Trash2, Shield, X, MapPin, Clock, Wifi, Navigation, Flag, Box, Cpu } from 'lucide-react';
+import { Users, Map, Activity, Search, Plus, Trash2, Shield, X, MapPin, Clock, Wifi, Navigation, Flag, Box, Cpu, Edit, Power } from 'lucide-react';
 import api from '../api';
 import { formatUserDateTime } from '../userPreferences';
 
@@ -20,10 +20,15 @@ function AdminPanel() {
   const [loading, setLoading] = useState(true);
   
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [showAddGeofence, setShowAddGeofence] = useState(false);
   
   const [formData, setFormData] = useState({
     username: '', firstname: '', lastname: '', email: '', password: '', accountType: 'CUSTOM_OFFICER', vehicleNo: ''
+  });
+
+  const [editFormData, setEditFormData] = useState({
+    id: '', type: '', username: '', firstname: '', lastname: '', email: '', role: '', vehicleNo: ''
   });
 
   const [geofenceData, setGeofenceData] = useState({
@@ -46,15 +51,15 @@ function AdminPanel() {
       ]);
 
       const staffData = staffRes.data.map(u => ({
-        id: u.staffId, type: 'STAFF', firstname: u.firstname, lastname: u.lastname, username: u.username, email: u.email, role: u.role
+        id: u.staffId, type: 'STAFF', firstname: u.firstname, lastname: u.lastname, username: u.username, email: u.email, role: u.role, isActive: u.active !== false
       }));
 
       const driverData = driversRes.data.map(u => ({
-        id: u.driverId, type: 'DRIVER', firstname: u.firstname, lastname: u.lastname, username: u.username, email: u.email, role: 'DRIVER'
+        id: u.driverId, type: 'DRIVER', firstname: u.firstname, lastname: u.lastname, username: u.username, email: u.email, role: 'DRIVER', vehicleNo: u.vehicleNo, isActive: u.active !== false
       }));
 
       const ownerData = ownersRes.data.map(u => ({
-        id: u.ownerId, type: 'OWNER', firstname: u.firstname, lastname: u.lastname, username: u.username, email: u.email, role: 'OWNER'
+        id: u.ownerId, type: 'OWNER', firstname: u.firstname, lastname: u.lastname, username: u.username, email: u.email, role: 'OWNER', isActive: u.active !== false
       }));
 
       setUsersList([...staffData, ...driverData, ...ownerData]);
@@ -94,6 +99,8 @@ function AdminPanel() {
   };
 
   const handleUserInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  
+  const handleEditInputChange = (e) => setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
 
   const handleAddUser = async (e) => {
     e.preventDefault();
@@ -107,14 +114,75 @@ function AdminPanel() {
     }
   };
 
-  const handleDeleteUser = async (id) => {
+  const handleEditClick = (user) => {
+    setEditFormData({
+      id: user.id,
+      type: user.type,
+      username: user.username,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email,
+      role: user.role,
+      vehicleNo: user.vehicleNo || ''
+    });
+    setShowEditForm(true);
+    setShowAddForm(false);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    
+    const requestPayload = {
+      firstname: editFormData.firstname,
+      lastname: editFormData.lastname,
+      email: editFormData.email,
+      accountType: editFormData.role,
+      vehicleNo: editFormData.vehicleNo
+    };
+
+    try {
+      await api.put(`/api/admin/users/${editFormData.type}/${editFormData.id}`, requestPayload);
+      
+      setUsersList((currentUsers) => 
+        currentUsers.map((user) => 
+          (user.id === editFormData.id && user.type === editFormData.type)
+            ? { ...user, ...editFormData } 
+            : user
+        )
+      );
+      setShowEditForm(false);
+    } catch (err) {
+      console.error('Failed to update user', err);
+      alert(err.response?.data?.message || 'Failed to update user. Please check permissions.');
+    }
+  };
+
+  const handleDeleteUser = async (id, type) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
 
     try {
-      await api.delete(`/api/users/${id}`);
-      setUsersList((currentUsers) => currentUsers.filter((user) => user.id !== id));
+      await api.delete(`/api/admin/users/${type}/${id}`);
+      setUsersList((currentUsers) => currentUsers.filter((user) => !(user.id === id && user.type === type)));
     } catch (err) {
       console.error('Failed to delete user', err);
+      alert(err.response?.data?.message || 'Failed to delete user. Please check permissions.');
+    }
+  };
+
+  const handleToggleStatus = async (id, type, currentStatus) => {
+    const newStatus = !currentStatus;
+    try {
+      await api.put(`/api/admin/users/${type}/${id}/status?isActive=${newStatus}`);
+      setUsersList((currentUsers) => 
+        currentUsers.map((user) => 
+          (user.id === id && user.type === type)
+            ? { ...user, isActive: newStatus } 
+            : user
+        )
+      );
+    } catch (err) {
+      console.error('Failed to update status', err);
+      alert('Failed to change user status.');
     }
   };
 
@@ -174,7 +242,7 @@ function AdminPanel() {
             <button
               key={key}
               type="button"
-              onClick={() => { setActiveTab(key); setShowAddForm(false); setShowAddGeofence(false); }}
+              onClick={() => { setActiveTab(key); setShowAddForm(false); setShowEditForm(false); setShowAddGeofence(false); }}
               className={`flex items-center gap-1.5 border-b-2 pb-3 text-sm font-medium transition-colors ${
                 activeTab === key ? 'border-[#0B3A5A] text-[#0B3A5A]' : 'border-transparent text-slate-500 hover:text-slate-700'
               }`}
@@ -187,7 +255,7 @@ function AdminPanel() {
 
       {activeTab === 'users' && (
         <div className="rounded-xl bg-white shadow-sm">
-          {!showAddForm && (
+          {!showAddForm && !showEditForm && (
             <div className="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative w-full sm:max-w-xs">
                 <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -233,6 +301,36 @@ function AdminPanel() {
              </div>
           )}
 
+          {showEditForm && (
+             <div className="border-b border-gray-100 p-6 bg-blue-50 rounded-t-xl">
+               <div className="flex justify-between items-center mb-4">
+                 <h3 className="text-lg font-bold text-slate-800">Edit User Details</h3>
+                 <button onClick={() => setShowEditForm(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+               </div>
+               <form onSubmit={handleEditSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div><label className="block text-xs font-medium text-slate-700 mb-1">First Name</label><input required type="text" name="firstname" value={editFormData.firstname} onChange={handleEditInputChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#0B3A5A]" /></div>
+                 <div><label className="block text-xs font-medium text-slate-700 mb-1">Last Name</label><input required type="text" name="lastname" value={editFormData.lastname} onChange={handleEditInputChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#0B3A5A]" /></div>
+                 <div><label className="block text-xs font-medium text-slate-700 mb-1">Email</label><input required type="email" name="email" value={editFormData.email} onChange={handleEditInputChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#0B3A5A]" /></div>
+                 <div>
+                   <label className="block text-xs font-medium text-slate-700 mb-1">Role</label>
+                   <select name="role" value={editFormData.role} onChange={handleEditInputChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#0B3A5A]">
+                     <option value="ADMIN">Admin</option>
+                     <option value="CUSTOM_OFFICER">Customs Officer</option>
+                     <option value="INSPECTOR">Field Inspector</option>
+                     <option value="DRIVER">Truck Driver</option>
+                     <option value="OWNER">Cargo Owner</option> 
+                   </select>
+                 </div>
+                 {editFormData.type === 'DRIVER' && (<div><label className="block text-xs font-medium text-slate-700 mb-1">Vehicle No</label><input required type="text" name="vehicleNo" value={editFormData.vehicleNo} onChange={handleEditInputChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#0B3A5A]" /></div>)}
+                 <div><label className="block text-xs font-medium text-slate-700 mb-1">Username (Cannot Change)</label><input disabled type="text" name="username" value={editFormData.username} className="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm focus:outline-none text-gray-500" /></div>
+                 <div className="md:col-span-2 pt-2 flex gap-3">
+                    <button type="submit" className="w-full sm:w-auto rounded-lg bg-[#0B3A5A] px-6 py-2 text-sm font-semibold text-white hover:bg-[#0a2f4a]">Update User</button>
+                    <button type="button" onClick={() => setShowEditForm(false)} className="w-full sm:w-auto rounded-lg bg-gray-200 px-6 py-2 text-sm font-semibold text-slate-700 hover:bg-gray-300">Cancel</button>
+                 </div>
+               </form>
+             </div>
+          )}
+
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -242,8 +340,11 @@ function AdminPanel() {
               </thead>
               <tbody>
                 {loading ? <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500">Loading...</td></tr> : filteredUsers.map((user) => (
-                  <tr key={`${user.type}-${user.id}`} className="border-b border-gray-50 last:border-0 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-slate-900">{user.firstname} {user.lastname}</td>
+                  <tr key={`${user.type}-${user.id}`} className={`border-b border-gray-50 last:border-0 hover:bg-gray-50 ${!user.isActive ? 'opacity-60 bg-gray-50' : ''}`}>
+                    <td className="px-4 py-3 font-medium text-slate-900">
+                      {user.firstname} {user.lastname}
+                      {!user.isActive && <span className="ml-2 text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-sm font-bold">INACTIVE</span>}
+                    </td>
                     <td className="px-4 py-3 text-slate-500">{user.username}</td><td className="px-4 py-3 text-slate-500">{user.email}</td>
                     <td className="px-4 py-3">
                       <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getRoleStyle(user.role, user.type)}`}>
@@ -251,7 +352,9 @@ function AdminPanel() {
                       </span>
                     </td>
                     <td className="px-4 py-3 flex gap-3">
-                      <button onClick={() => handleDeleteUser(user.id)} className="text-red-500 hover:text-red-700"><Trash2 size={16} /></button>
+                      <button onClick={() => handleToggleStatus(user.id, user.type, user.isActive)} className={`${user.isActive ? 'text-amber-500 hover:text-amber-700' : 'text-emerald-500 hover:text-emerald-700'}`} title={user.isActive ? "Deactivate User" : "Activate User"}><Power size={16} /></button>
+                      <button onClick={() => handleEditClick(user)} className="text-blue-500 hover:text-blue-700" title="Edit User"><Edit size={16} /></button>
+                      <button onClick={() => handleDeleteUser(user.id, user.type)} className="text-red-500 hover:text-red-700" title="Delete User"><Trash2 size={16} /></button>
                     </td>
                   </tr>
                 ))}

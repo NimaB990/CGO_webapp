@@ -1,21 +1,31 @@
 package com.securetrack.backend.controller;
 
+import java.security.Principal;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.securetrack.backend.dto.ProfileDTO;
 import com.securetrack.backend.models.Staff;
 import com.securetrack.backend.repository.StaffRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private StaffRepository staffRepository;
+    private final StaffRepository staffRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // 1. ලොග් වී සිටින User ගේ දත්ත Frontend එකට යැවීම
     @GetMapping("/me")
@@ -67,9 +77,8 @@ public class UserController {
     public ResponseEntity<?> changePassword(@RequestBody ProfileDTO.PasswordChangeRequest req, Principal principal) {
         Staff staff = staffRepository.findByUsername(principal.getName()).orElse(null);
         if (staff != null) {
-            // (Production එකේදී මෙතන PasswordEncoder එකක් පාවිච්චි කරන්න වෙනවා. දැනට අපි කෙලින්ම සසඳමු)
-            if (staff.getPassword().equals(req.getCurrentPassword())) {
-                staff.setPassword(req.getNewPassword());
+            if (passwordEncoder.matches(req.getCurrentPassword(), staff.getPassword())) {
+                staff.setPassword(passwordEncoder.encode(req.getNewPassword()));
                 staffRepository.save(staff);
                 return ResponseEntity.ok().body("Password Updated");
             } else {

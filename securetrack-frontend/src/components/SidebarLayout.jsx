@@ -7,6 +7,7 @@ import {
   FileText,
   Settings as SettingsIcon,
   LogOut,
+  Truck,
 } from 'lucide-react';
 
 function parseJwt(token) {
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { to: '/app/admin', label: 'Admin Panel', icon: Users, roles: ['ADMIN'] },
   { to: '/app/reports', label: 'Reports', icon: FileText, roles: ['ADMIN', 'CUSTOM_OFFICER'] },
   { to: '/app/settings', label: 'Settings', icon: SettingsIcon, roles: ['ADMIN', 'CUSTOM_OFFICER', 'INSPECTOR', 'DRIVER'] },
+  { to: '/app/driver', label: 'Driver Dashboard', icon: Truck, roles: ['DRIVER'] },
 ];
 
 function SidebarLayout() {

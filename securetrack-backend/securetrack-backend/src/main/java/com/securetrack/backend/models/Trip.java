@@ -37,6 +37,9 @@ public class Trip {
     @JoinColumn(name = "container_id", nullable = false)
     private Container container;
 
+    @Column(name = "vehicle_number", nullable = false, length = 20)
+    private String vehicleNumber;
+
     // ස්ථාන වල නම් (පෙන්නන්න ලේසි වෙන්න)
     private String startLocationName; // උදා: කොළඹ වරාය
     private String endLocationName;   // උදා: කටුනායක FTZ

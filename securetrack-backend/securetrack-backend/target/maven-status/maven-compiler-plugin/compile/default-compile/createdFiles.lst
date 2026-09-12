@@ -32,11 +32,13 @@ com\securetrack\backend\repository\TripRepository.class
 com\securetrack\backend\models\Admin$AdminBuilderImpl.class
 com\securetrack\backend\models\TrackingLog.class
 com\securetrack\backend\dto\ContainerInitRequest.class
+com\securetrack\backend\dto\DriverEmergencyRequest.class
 com\securetrack\backend\models\Owner$OwnerBuilder.class
 com\securetrack\backend\models\Driver$DriverBuilder.class
 com\securetrack\backend\controller\IoTModuleController.class
 com\securetrack\backend\dto\LiveLocationResponse$LiveLocationResponseBuilder.class
 com\securetrack\backend\models\AlertStatus.class
+com\securetrack\backend\dto\TripStatusUpdateRequest.class
 com\securetrack\backend\repository\TrackingLogRepository.class
 com\securetrack\backend\dto\AlertResponse.class
 com\securetrack\backend\models\TrackingLog$TrackingLogBuilder.class
@@ -44,11 +46,13 @@ com\securetrack\backend\controller\TripController.class
 com\securetrack\backend\dto\TripTrackingResponse$TripTrackingResponseBuilder.class
 com\securetrack\backend\models\IoTModule.class
 com\securetrack\backend\repository\StaffRepository.class
+com\securetrack\backend\dto\TripAssignmentRequest.class
 com\securetrack\backend\dto\TripTrackingResponse.class
 com\securetrack\backend\exception\GlobalExceptionHandler.class
 com\securetrack\backend\models\Staff.class
 com\securetrack\backend\service\RouteVerificationService.class
 com\securetrack\backend\models\AuditLog.class
+com\securetrack\backend\repository\TripLocationRepository.class
 com\securetrack\backend\dto\ProfileDTO$PasswordChangeRequest.class
 com\securetrack\backend\exception\BadRequestException.class
 com\securetrack\backend\service\SecurityMonitoringService.class
@@ -61,8 +65,10 @@ com\securetrack\backend\service\AlertNotificationService.class
 com\securetrack\backend\security\JwtAuthenticationFilter.class
 com\securetrack\backend\dto\LoginRequest.class
 com\securetrack\backend\models\Owner.class
+com\securetrack\backend\service\TripService.class
 com\securetrack\backend\service\AuditManagementService.class
 com\securetrack\backend\models\CustomOfficer.class
+com\securetrack\backend\models\TripLocation$TripLocationBuilder.class
 com\securetrack\backend\models\AuditLog$AuditLogBuilder.class
 com\securetrack\backend\dto\LiveLocationResponse.class
 com\securetrack\backend\dto\ReportSummaryDTO$AlertDistribution$AlertDistributionBuilder.class
@@ -71,6 +77,7 @@ com\securetrack\backend\repository\ContainerRepository.class
 com\securetrack\backend\exception\ResourceNotFoundException.class
 com\securetrack\backend\config\SecurityConfig.class
 com\securetrack\backend\security\UserPrincipal.class
+com\securetrack\backend\models\TripLocation.class
 com\securetrack\backend\service\MqttTelemetryService.class
 com\securetrack\backend\controller\GeofenceController.class
 com\securetrack\backend\models\Driver.class

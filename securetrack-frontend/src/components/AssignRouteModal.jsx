@@ -3,6 +3,7 @@ import api from '../api';
 
 const INITIAL_FORM = {
   containerId: 0,
+  vehicleNumber: '',
   moduleId: 0, // අලුතින් එකතු කළ IoT Module ID එක
   allowedDeviationMeters: 200, // අලුතින් එකතු කළ ආරක්ෂිත සීමාව
   startLat: '6.9497',
@@ -33,6 +34,7 @@ function AssignRouteModal({ onAssignSuccess }) {
 
     try {
       await api.post('/api/trips/assign', form);
+      setForm(INITIAL_FORM);
       onAssignSuccess();
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Unable to assign route. Please try again.');
@@ -44,6 +46,7 @@ function AssignRouteModal({ onAssignSuccess }) {
   // Form එකේ පෙන්වන්න ඕන fields ටික
   const fields = [
     { name: 'containerId', label: 'Container ID', type: 'number' },
+    { name: 'vehicleNumber', label: 'Vehicle Number' },
     { name: 'moduleId', label: 'IoT Module ID', type: 'number' },
     { name: 'allowedDeviationMeters', label: 'Security Buffer (Meters)', type: 'number' },
     { name: 'startLat', label: 'Start latitude' },

@@ -1,16 +1,29 @@
 package com.securetrack.backend.service;
 
-import com.securetrack.backend.dto.UserCreateRequest;
-import com.securetrack.backend.exception.BadRequestException;
-import com.securetrack.backend.exception.ResourceNotFoundException;
-import com.securetrack.backend.models.*;
-import com.securetrack.backend.repository.*;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.securetrack.backend.dto.UserCreateRequest;
+import com.securetrack.backend.exception.BadRequestException;
+import com.securetrack.backend.exception.ResourceNotFoundException;
+import com.securetrack.backend.models.Admin;
+import com.securetrack.backend.models.CustomOfficer;
+import com.securetrack.backend.models.Driver;
+import com.securetrack.backend.models.Inspector;
+import com.securetrack.backend.models.Owner;
+import com.securetrack.backend.models.Staff;
+import com.securetrack.backend.models.StaffRole;
+import com.securetrack.backend.repository.AdminRepository;
+import com.securetrack.backend.repository.CustomOfficerRepository;
+import com.securetrack.backend.repository.DriverRepository;
+import com.securetrack.backend.repository.InspectorRepository;
+import com.securetrack.backend.repository.OwnerRepository;
+import com.securetrack.backend.repository.StaffRepository;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * UserManagementService - backs the "Manage Users" use case (Admin-only).
@@ -135,5 +148,80 @@ public class UserManagementService {
             throw new ResourceNotFoundException("Staff not found: " + staffId);
         }
         staffRepository.deleteById(staffId);
+    }
+
+    // --- අලුතින් එකතු කළ ක්‍රමවේද (Edit, Delete, Toggle Status) ---
+
+    @Transactional
+    public Object updateUser(String entityType, Long id, UserCreateRequest request) {
+        if ("STAFF".equalsIgnoreCase(entityType)) {
+            Staff staff = staffRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Staff not found: " + id));
+            if (request.getFirstname() != null) staff.setFirstname(request.getFirstname());
+            if (request.getLastname() != null) staff.setLastname(request.getLastname());
+            if (request.getEmail() != null) staff.setEmail(request.getEmail());
+            if (request.getAccountType() != null) {
+                try {
+                    staff.setRole(StaffRole.valueOf(request.getAccountType().toUpperCase()));
+                } catch (IllegalArgumentException ignored) {}
+            }
+            return staffRepository.save(staff);
+            
+        } else if ("DRIVER".equalsIgnoreCase(entityType)) {
+            Driver driver = driverRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Driver not found: " + id));
+            if (request.getFirstname() != null) driver.setFirstname(request.getFirstname());
+            if (request.getLastname() != null) driver.setLastname(request.getLastname());
+            if (request.getEmail() != null) driver.setEmail(request.getEmail());
+            if (request.getVehicleNo() != null) driver.setVehicleNo(request.getVehicleNo());
+            return driverRepository.save(driver);
+            
+        } else if ("OWNER".equalsIgnoreCase(entityType)) {
+            Owner owner = ownerRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Owner not found: " + id));
+            if (request.getFirstname() != null) owner.setFirstname(request.getFirstname());
+            if (request.getLastname() != null) owner.setLastname(request.getLastname());
+            if (request.getEmail() != null) owner.setEmail(request.getEmail());
+            return ownerRepository.save(owner);
+        }
+        throw new BadRequestException("Invalid User Type: " + entityType);
+    }
+
+    @Transactional
+    public void deleteUser(String entityType, Long id) {
+        if ("STAFF".equalsIgnoreCase(entityType)) {
+            if (!staffRepository.existsById(id)) throw new ResourceNotFoundException("Staff not found: " + id);
+            staffRepository.deleteById(id);
+        } else if ("DRIVER".equalsIgnoreCase(entityType)) {
+            if (!driverRepository.existsById(id)) throw new ResourceNotFoundException("Driver not found: " + id);
+            driverRepository.deleteById(id);
+        } else if ("OWNER".equalsIgnoreCase(entityType)) {
+            if (!ownerRepository.existsById(id)) throw new ResourceNotFoundException("Owner not found: " + id);
+            ownerRepository.deleteById(id);
+        } else {
+            throw new BadRequestException("Invalid User Type: " + entityType);
+        }
+    }
+
+    @Transactional
+    public void toggleUserStatus(String entityType, Long id, boolean isActive) {
+        if ("STAFF".equalsIgnoreCase(entityType)) {
+            Staff staff = staffRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Staff not found: " + id));
+            staff.setActive(isActive);
+            staffRepository.save(staff);
+        } else if ("DRIVER".equalsIgnoreCase(entityType)) {
+            Driver driver = driverRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Driver not found: " + id));
+            driver.setActive(isActive);
+            driverRepository.save(driver);
+        } else if ("OWNER".equalsIgnoreCase(entityType)) {
+            Owner owner = ownerRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Owner not found: " + id));
+            owner.setActive(isActive);
+            ownerRepository.save(owner);
+        } else {
+            throw new BadRequestException("Invalid User Type: " + entityType);
+        }
     }
 }

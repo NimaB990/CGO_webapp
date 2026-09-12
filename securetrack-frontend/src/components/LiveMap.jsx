@@ -6,6 +6,44 @@ import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import api from '../api';
 
+function normalizeId(value) {
+  return value === undefined || value === null ? '' : String(value);
+}
+
+function getTripContainerId(trip) {
+  return trip?.containerId
+    ?? trip?.containerNo
+    ?? trip?.containerNumber
+    ?? trip?.container?.id
+    ?? trip?.container?.containerId
+    ?? trip?.container?.containerNo;
+}
+
+function getTripId(trip) {
+  return trip?.id ?? trip?.tripId;
+}
+
+function getLocationCoordinates(responseData) {
+  const data = responseData?.data ?? responseData;
+  const locations = Array.isArray(data)
+    ? data
+    : data?.locations ?? data?.coordinates ?? data?.path ?? data?.track ?? [];
+
+  if (!Array.isArray(locations)) return [];
+  return locations.map((location) => {
+    if (Array.isArray(location)) {
+      return [Number(location[0]), Number(location[1])];
+    }
+
+    return [
+      Number(location?.latitude ?? location?.lat),
+      Number(location?.longitude ?? location?.lng ?? location?.lon),
+    ];
+  }).filter(([latitude, longitude]) => (
+    Number.isFinite(latitude) && Number.isFinite(longitude)
+  ));
+}
+
 let DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
@@ -55,7 +93,7 @@ function TrackedMarker({ container }) {
   );
 }
 
-const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContainersChange }) => {
+const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContainersChange, plannedRoute = [], actualPath = [] }) => {
   // ලංකාවම පෙනෙන සේ මධ්‍ය ලක්ෂ්‍යය සහ Zoom එක වෙනස් කර ඇත
   const defaultPosition = [7.8731, 80.7718]; 
   const sriLankaBounds = [[5.7, 79.4], [10.0, 82.1]];
@@ -64,6 +102,9 @@ const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContai
   // මාර්ග සහ ගමන් කළ පථයන් Container ID එක අනුව වෙන් වෙන්ව ගබඩා කිරීම
   const [plannedRoutes, setPlannedRoutes] = useState({});
   const [traveledPaths, setTraveledPaths] = useState({});
+  const [actualPaths, setActualPaths] = useState({});
+  const [tripStatuses, setTripStatuses] = useState({});
+  const tripStatusesRef = useRef({});
   
   // එකම මාර්ගය නැවත නැවත Fetch වීම වැළැක්වීමට Reference එකක්
   const fetchedTrips = useRef(new Set());
@@ -74,14 +115,60 @@ const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContai
     const fetchLiveLocations = async () => {
       try {
         const response = await api.get('/api/monitoring/live-locations');
-        const liveData = response.data;
-        setActiveContainers(liveData);
-        onActiveContainersChange?.(liveData);
+        const liveData = Array.isArray(response.data?.data) ? response.data.data : response.data;
+        let latestTripStatuses = tripStatusesRef.current;
+
+        try {
+          const tripsResponse = await api.get('/api/trips');
+          const tripsData = tripsResponse.data?.data ?? tripsResponse.data;
+          const trips = Array.isArray(tripsData) ? tripsData : tripsData?.trips || [];
+          latestTripStatuses = trips.reduce((statuses, trip) => {
+            const containerId = getTripContainerId(trip);
+            const tripId = getTripId(trip);
+            const status = String(trip.status || 'UNKNOWN').toUpperCase();
+            if (containerId !== undefined && containerId !== null) {
+              statuses[normalizeId(containerId)] = status;
+            }
+            if (tripId !== undefined && tripId !== null) {
+              statuses[normalizeId(tripId)] = status;
+            }
+            return statuses;
+          }, {});
+          tripStatusesRef.current = latestTripStatuses;
+          setTripStatuses(latestTripStatuses);
+
+          const activeTrips = trips.filter((trip) => String(trip.status || '').toUpperCase() === 'ACTIVE');
+          const locationResults = await Promise.all(activeTrips.map(async (trip) => {
+            const tripId = getTripId(trip);
+            if (tripId === undefined || tripId === null) return null;
+
+            try {
+              const locationsResponse = await api.get(`/api/monitoring/trip/${tripId}/locations`);
+              console.log('Fetched Map Data:', locationsResponse.data);
+              const coordinates = getLocationCoordinates(locationsResponse.data);
+              const pathKey = normalizeId(getTripContainerId(trip) ?? tripId);
+              return coordinates.length > 0 ? [pathKey, coordinates] : null;
+            } catch (locationError) {
+              console.error(`Failed to fetch actual path for trip ${tripId}:`, locationError);
+              return null;
+            }
+          }));
+
+          setActualPaths(Object.fromEntries(locationResults.filter(Boolean)));
+        } catch (tripError) {
+          console.error('Failed to refresh trip statuses:', tripError);
+        }
+
+        const activeLiveData = liveData.filter((container) => (
+          latestTripStatuses[normalizeId(container.containerId)] !== 'COMPLETED'
+        ));
+        setActiveContainers(activeLiveData);
+        onActiveContainersChange?.(activeLiveData);
 
         // 1. ගමන් කළ පථය (Traveled Path) එක් එක් කන්ටේනරයට වෙන් වෙන්ව Update කිරීම
         setTraveledPaths(prevPaths => {
           const updatedPaths = { ...prevPaths };
-          liveData.forEach(container => {
+          activeLiveData.forEach(container => {
             const id = container.containerId;
             if (!updatedPaths[id]) updatedPaths[id] = [];
             
@@ -95,7 +182,7 @@ const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContai
         });
 
         // 2. අලුත් Container එකක් ආවොත්, ඊට අදාළ Planned Route එක පමණක් Fetch කිරීම
-        liveData.forEach(async (container) => {
+        activeLiveData.forEach(async (container) => {
           const id = container.containerId;
           
           if (!fetchedTrips.current.has(id)) {
@@ -170,20 +257,47 @@ const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContai
           <TrackedMarker container={trackedContainer} />
         )}
 
+        {plannedRoute.length > 0 && (
+          <Polyline positions={plannedRoute} pathOptions={{ color: '#2563eb', weight: 5 }} />
+        )}
+
+        {actualPath.length > 0 && (
+          <>
+            <Polyline positions={actualPath} pathOptions={{ color: 'red', weight: 5 }} />
+            <Marker position={actualPath[actualPath.length - 1]}>
+              <Popup>Current Location</Popup>
+            </Marker>
+          </>
+        )}
+
         {/* සියලුම කන්ටේනර් වල ආරක්ෂිත කලාප (Buffer) සහ සැලසුම් කළ මාර්ග (Planned Route) ඇඳීම */}
-        {Object.entries(plannedRoutes).map(([id, coords]) => (
+        {Object.entries(plannedRoutes)
+          .filter(([id]) => tripStatuses[id] !== 'COMPLETED')
+          .map(([id, coords]) => (
           <React.Fragment key={`planned-${id}`}>
             <Polyline positions={coords} color="#ef4444" weight={40} opacity={0.3} />
             <Polyline positions={coords} color="#3B82F6" dashArray="5, 10" weight={4} />
           </React.Fragment>
-        ))}
+          ))}
 
         {/* සියලුම කන්ටේනර් වල ගමන් කළ පථයන් (Traveled Paths) ඇඳීම */}
-        {Object.entries(traveledPaths).map(([id, pathCoords]) => (
+        {Object.entries(traveledPaths)
+          .filter(([id]) => tripStatuses[id] !== 'COMPLETED')
+          .map(([id, pathCoords]) => (
           pathCoords.length > 0 && (
             <Polyline key={`traveled-${id}`} positions={pathCoords} color="#EF4444" weight={4} />
           )
-        ))}
+          ))}
+
+        {Object.entries(actualPaths)
+          .filter(([id]) => tripStatuses[id] === 'ACTIVE')
+          .map(([id, actualPath]) => (
+            <Polyline
+              key={`actual-${id}`}
+              positions={actualPath}
+              pathOptions={{ color: 'red', weight: 5 }}
+            />
+          ))}
 
         {/* සජීවී ලොකේෂන් පෙන්වන Markers */}
         {activeContainers.map((container) => (
@@ -194,7 +308,9 @@ const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContai
                 <div className="mt-2 space-y-1">
                   <p className="flex justify-between">
                     <span className="text-gray-500">Status:</span> 
-                    <span className="font-medium text-green-600">{container.status}</span>
+                    <span className={`font-medium ${tripStatuses[normalizeId(container.containerId)] === 'COMPLETED' ? 'text-slate-500' : 'text-green-600'}`}>
+                      {tripStatuses[normalizeId(container.containerId)] || container.status}
+                    </span>
                   </p>
                   <p className="flex justify-between">
                     <span className="text-gray-500">Speed:</span> 

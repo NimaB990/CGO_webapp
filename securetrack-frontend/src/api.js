@@ -29,7 +29,7 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+    if (error.response && (error.response.status === 401 || error.response.status === 403) && !error.config?.skipAuthRedirect) {
       // Token එක වැරදියි හෝ කල් ඉකුත් වෙලා නම් LocalStorage එකෙන් මකලා Login පිටුවට යවනවා
       localStorage.removeItem('token');
       window.location.href = '/'; 

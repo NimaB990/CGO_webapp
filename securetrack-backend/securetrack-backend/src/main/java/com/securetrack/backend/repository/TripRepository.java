@@ -3,6 +3,7 @@ package com.securetrack.backend.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,6 +21,42 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     Optional<Trip> findByTrackingReference(String trackingReference);
     Optional<Trip> findByTrackingReferenceAndContainer_Owner_OwnerId(
             String trackingReference, Long ownerId);
+
+    @Query("SELECT t FROM Trip t JOIN FETCH t.container c WHERE t.id = :tripId")
+    Optional<Trip> findByIdWithContainer(@Param("tripId") Long tripId);
+
+    List<Trip> findByStatusInOrderByIdDesc(List<String> statuses);
+        @EntityGraph(attributePaths = {"container", "container.driver"})
+    Optional<Trip> findFirstByVehicleNumberIgnoreCaseAndStatusInOrderByStartTimeDescIdDesc(
+            String vehicleNumber, List<String> statuses);
+    List<String> findDistinctVehicleNumberByVehicleNumberIsNotNull();
+
+    @Query("SELECT t FROM Trip t "
+            + "JOIN FETCH t.container c "
+            + "JOIN FETCH c.driver d "
+            + "WHERE d.driverId = :driverId "
+            + "AND t.status IN :statuses ORDER BY t.id DESC")
+    List<Trip> findAssignedByDriverAndStatusIn(@Param("driverId") Long driverId,
+                                               @Param("statuses") List<String> statuses);
+
+    @Query("SELECT t FROM Trip t "
+            + "JOIN FETCH t.container c "
+            + "JOIN FETCH c.driver d "
+            + "WHERE d.driverId = :driverId "
+            + "AND t.vehicleNumber = :vehicleNumber "
+            + "AND t.status IN :statuses ORDER BY t.id DESC")
+    List<Trip> findAssignedByDriverAndVehicleAndStatusIn(
+            @Param("driverId") Long driverId,
+            @Param("vehicleNumber") String vehicleNumber,
+            @Param("statuses") List<String> statuses);
+
+    @Query("SELECT t FROM Trip t "
+            + "JOIN FETCH t.container c "
+            + "JOIN FETCH c.driver d "
+            + "WHERE t.id = :tripId AND d.driverId = :driverId")
+    Optional<Trip> findByIdAndDriverId(@Param("tripId") Long tripId,
+                                       @Param("driverId") Long driverId);
+
     @Query("SELECT t FROM Trip t "
             + "JOIN FETCH t.container c "
             + "LEFT JOIN FETCH c.iotModule "
