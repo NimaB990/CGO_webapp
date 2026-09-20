@@ -11,10 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * AuditManagementService - records core system events (logins, container
- * lifecycle actions, user management) for accountability/traceability.
- */
 @Service
 @RequiredArgsConstructor
 public class AuditManagementService {

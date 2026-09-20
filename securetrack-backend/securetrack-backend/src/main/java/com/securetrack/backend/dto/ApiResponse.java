@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/** Generic success/failure envelope returned by non-resource endpoints. */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

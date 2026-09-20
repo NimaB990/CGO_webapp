@@ -4,6 +4,7 @@ F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\controller\AlertController.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\controller\AuthController.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\controller\ContainerController.java
+F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\controller\DevicePairingController.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\controller\GeofenceController.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\controller\IoTModuleController.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\controller\MonitoringController.java

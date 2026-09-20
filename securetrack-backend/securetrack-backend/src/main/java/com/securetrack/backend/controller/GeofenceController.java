@@ -10,11 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * GeofenceController - manages the corridor/checkpoint definitions used by
- * RouteVerificationService to validate a Container's live GPS position.
- * Write access restricted to ADMIN/INSPECTOR per SecurityConfig.
- */
 @RestController
 @RequestMapping("/api/geofences")
 @RequiredArgsConstructor

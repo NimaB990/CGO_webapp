@@ -9,12 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-/**
- * RouteVerificationService - cross-references a Container's live GPS position
- * (from MQTT telemetry) against its assigned Geofence corridor. Raises a
- * ROUTE_DEVIATION alert when the container strays outside the expected path,
- * supporting the "View Assigned Route" and anti-theft monitoring use cases.
- */
 @Service
 @RequiredArgsConstructor
 public class RouteVerificationService {
@@ -30,14 +24,13 @@ public class RouteVerificationService {
     public void verifyRoute(Container container, TelemetryPayload payload) {
         Geofence geofence = container.getGeofence();
         if (geofence == null || payload.getLatitude() == null || payload.getLongitude() == null) {
-            return; // no assigned corridor to verify against, or no GPS fix yet
+            return; 
         }
 
         double distance = haversineDistanceKm(
                 geofence.getLatitude(), geofence.getLongitude(),
                 payload.getLatitude(), payload.getLongitude());
 
-        // Convert the configured degree-based threshold to an approximate km tolerance.
         double toleranceKm = deviationThreshold * 111.0;
 
         if (distance > toleranceKm) {
@@ -60,7 +53,6 @@ public class RouteVerificationService {
         }
     }
 
-    /** Great-circle distance between two lat/lng points, in kilometers. */
     private double haversineDistanceKm(double lat1, double lon1, double lat2, double lon2) {
         final int earthRadiusKm = 6371;
         double dLat = Math.toRadians(lat2 - lat1);

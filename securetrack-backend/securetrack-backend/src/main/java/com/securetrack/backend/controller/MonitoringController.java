@@ -45,7 +45,7 @@ public class MonitoringController {
 
     @Autowired
     private ContainerRepository containerRepository;
-    
+
     @Autowired
     private TripRepository tripRepository;
 
@@ -59,7 +59,7 @@ public class MonitoringController {
     private TripService tripService;
 
     @Autowired
-    private AlertNotificationService alertNotificationService; // Added here
+    private AlertNotificationService alertNotificationService; 
 
     private final Map<Long, Map<String, Object>> activeLocations = new ConcurrentHashMap<>();
 
@@ -132,7 +132,6 @@ public class MonitoringController {
 
             activeLocations.put(containerId, liveData);
 
-            // ---------- ROUTE DEVIATION LOGIC ----------
             List<Trip> trips = tripRepository.findByContainer_ContainerIdOrderByIdDesc(containerId);
             Trip activeTrip = trips.stream()
                     .filter(t -> "ACTIVE".equals(t.getStatus()) || "IN_TRANSIT".equals(t.getStatus())
@@ -158,31 +157,29 @@ public class MonitoringController {
                     && !activeTrip.getRouteCoordinatesJson().isBlank()) {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode routeNode = mapper.readTree(activeTrip.getRouteCoordinatesJson());
-                
+
                 double distanceFromRoute = getMinDistanceFromRoute(latitude, longitude, routeNode);
                 Integer configuredDeviation = activeTrip.getAllowedDeviationMeters();
                 int allowedDeviation = configuredDeviation != null ? configuredDeviation : 200;
 
                 if (distanceFromRoute > allowedDeviation) {
                     System.out.println("🚨 ALERT: Container " + containerId + " deviated from route by " + Math.round(distanceFromRoute) + " meters!");
-                    
-                    // Alert Entity එකට ගැලපෙන ලෙස දත්ත සකස් කිරීම
+
                     Alert alert = new Alert();
                     alert.setContainer(container);
-                    
+
                     alert.setType(AlertType.ROUTE_DEVIATION); 
                     alert.setSeverity(AlertSeverity.HIGH); 
                     alert.setStatus(AlertStatus.PENDING); 
-                    
+
                     alert.setMessage("Container deviated from planned route by " + Math.round(distanceFromRoute) + " meters.");
                     alert.setGpsLocation(latitude + ", " + longitude);
                     alert.setSentAt(LocalDateTime.now());
-                    
+
                     Alert savedAlert = alertRepository.save(alert);
-                    
-                    // Trigger Email / Notifications
-                    alertNotificationService.notify(savedAlert); // Added here
-                    
+
+                    alertNotificationService.notify(savedAlert); 
+
                 } else {
                     System.out.println("✅ Container " + containerId + " is on track. Distance to route: " + Math.round(distanceFromRoute) + "m");
                 }

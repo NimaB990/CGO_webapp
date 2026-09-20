@@ -8,6 +8,7 @@ import AdminPanel from './pages/AdminPanel';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import DriverDashboard from './pages/DriverDashboard';
+import InspectorDashboard from './pages/InspectorDashboard';
 
 /**
  * RequireAuth
@@ -44,6 +45,9 @@ function App() {
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
           <Route path="driver" element={<DriverDashboard />} />
+          
+          {/* Field Inspector Dashboard එක මෙතැනට සාර්ථකව එකතු කර ඇත */}
+          <Route path="inspector-dashboard" element={<InspectorDashboard />} />
         </Route>
 
         {/* Fallback: any unknown URL redirects to sign-in */}

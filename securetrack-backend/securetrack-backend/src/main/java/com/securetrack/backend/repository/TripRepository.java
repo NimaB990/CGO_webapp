@@ -13,8 +13,7 @@ import com.securetrack.backend.models.Trip;
 
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
-    
-    // Spring Boot එකට තේරෙන්න 'Container' එකේ 'ContainerId' එකෙන් හොයන්න කියලා හරියටම දුන්නා
+
     List<Trip> findByContainer_ContainerIdOrderByIdDesc(Long containerId);
     List<Trip> findByContainer_ContainerIdAndContainer_Owner_OwnerIdOrderByIdDesc(Long containerId, Long ownerId);
     List<Trip> findByContainer_Owner_OwnerIdOrderByIdDesc(Long ownerId);

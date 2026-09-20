@@ -137,13 +137,13 @@ public class TripController {
             } else {
             trips = tripRepository.findByContainer_ContainerIdOrderByIdDesc(containerId);
             }
-            
+
             if (trips.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
-            
+
             return ResponseEntity.ok(trips.get(0));
-            
+
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error fetching trip: " + e.getMessage());
         }

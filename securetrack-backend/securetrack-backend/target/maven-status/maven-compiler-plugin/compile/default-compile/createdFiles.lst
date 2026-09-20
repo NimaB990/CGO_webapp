@@ -11,6 +11,7 @@ com\securetrack\backend\models\Container$ContainerBuilder.class
 com\securetrack\backend\controller\ReportController.class
 com\securetrack\backend\controller\AdminController.class
 com\securetrack\backend\dto\ReportSummaryDTO$ShipmentActivity$ShipmentActivityBuilder.class
+com\securetrack\backend\controller\DevicePairingController.class
 com\securetrack\backend\models\Geofence.class
 com\securetrack\backend\dto\ProfileDTO.class
 com\securetrack\backend\models\Alert$AlertBuilder.class
@@ -46,6 +47,7 @@ com\securetrack\backend\controller\TripController.class
 com\securetrack\backend\dto\TripTrackingResponse$TripTrackingResponseBuilder.class
 com\securetrack\backend\models\IoTModule.class
 com\securetrack\backend\repository\StaffRepository.class
+com\securetrack\backend\controller\DevicePairingController$PairingRequest.class
 com\securetrack\backend\dto\TripAssignmentRequest.class
 com\securetrack\backend\dto\TripTrackingResponse.class
 com\securetrack\backend\exception\GlobalExceptionHandler.class
@@ -66,6 +68,7 @@ com\securetrack\backend\security\JwtAuthenticationFilter.class
 com\securetrack\backend\dto\LoginRequest.class
 com\securetrack\backend\models\Owner.class
 com\securetrack\backend\service\TripService.class
+com\securetrack\backend\controller\DevicePairingController$UnlockRequest.class
 com\securetrack\backend\service\AuditManagementService.class
 com\securetrack\backend\models\CustomOfficer.class
 com\securetrack\backend\models\TripLocation$TripLocationBuilder.class

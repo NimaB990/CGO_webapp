@@ -23,10 +23,6 @@ import com.securetrack.backend.service.UserManagementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-/**
- * AdminController - "Manage Users" use case. Every endpoint here is
- * restricted to ADMIN staff via SecurityConfig (/api/admin/**).
- */
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
@@ -73,20 +69,17 @@ public class AdminController {
         return ResponseEntity.ok(auditManagementService.getAllLogs());
     }
 
-    // අලුතින් එකතු කළ Edit User Endpoint එක
     @PutMapping("/users/{entityType}/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable String entityType, @PathVariable Long id, @RequestBody UserCreateRequest request) {
         return ResponseEntity.ok(userManagementService.updateUser(entityType, id, request));
     }
 
-    // අලුතින් එකතු කළ Delete User Endpoint එක
     @DeleteMapping("/users/{entityType}/{id}")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable String entityType, @PathVariable Long id) {
         userManagementService.deleteUser(entityType, id);
         return ResponseEntity.ok(ApiResponse.ok("User deleted successfully"));
     }
 
-    // අලුතින් එකතු කළ Active/Deactive User Endpoint එක
     @PutMapping("/users/{entityType}/{id}/status")
     public ResponseEntity<ApiResponse> toggleUserStatus(@PathVariable String entityType, @PathVariable Long id, @org.springframework.web.bind.annotation.RequestParam boolean isActive) {
         userManagementService.toggleUserStatus(entityType, id, isActive);

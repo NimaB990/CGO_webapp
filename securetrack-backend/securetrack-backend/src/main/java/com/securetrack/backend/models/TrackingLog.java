@@ -6,10 +6,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * TrackingLog - a discrete GPS/telemetry checkpoint recorded during a
- * Container's journey (start of tracking through completion).
- */
 @Entity
 @Table(name = "tracking_log")
 @Data
@@ -29,7 +25,6 @@ public class TrackingLog {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
-    /** "lat,lng" formatted GPS coordinate reported at this checkpoint. */
     @Column(name = "gps_location", length = 100)
     private String gpsLocation;
 

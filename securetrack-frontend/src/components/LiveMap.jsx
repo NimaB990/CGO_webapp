@@ -94,19 +94,19 @@ function TrackedMarker({ container }) {
 }
 
 const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContainersChange, plannedRoute = [], actualPath = [] }) => {
-  // ලංකාවම පෙනෙන සේ මධ්‍ය ලක්ෂ්‍යය සහ Zoom එක වෙනස් කර ඇත
+  
   const defaultPosition = [7.8731, 80.7718]; 
   const sriLankaBounds = [[5.7, 79.4], [10.0, 82.1]];
   const [activeContainers, setActiveContainers] = useState([]);
   
-  // මාර්ග සහ ගමන් කළ පථයන් Container ID එක අනුව වෙන් වෙන්ව ගබඩා කිරීම
+  
   const [plannedRoutes, setPlannedRoutes] = useState({});
   const [traveledPaths, setTraveledPaths] = useState({});
   const [actualPaths, setActualPaths] = useState({});
   const [tripStatuses, setTripStatuses] = useState({});
   const tripStatusesRef = useRef({});
   
-  // එකම මාර්ගය නැවත නැවත Fetch වීම වැළැක්වීමට Reference එකක්
+  
   const fetchedTrips = useRef(new Set());
 
   useEffect(() => {
@@ -165,14 +165,14 @@ const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContai
         setActiveContainers(activeLiveData);
         onActiveContainersChange?.(activeLiveData);
 
-        // 1. ගමන් කළ පථය (Traveled Path) එක් එක් කන්ටේනරයට වෙන් වෙන්ව Update කිරීම
+        
         setTraveledPaths(prevPaths => {
           const updatedPaths = { ...prevPaths };
           activeLiveData.forEach(container => {
             const id = container.containerId;
             if (!updatedPaths[id]) updatedPaths[id] = [];
             
-            // එකම ලොකේෂන් එක නැවත ඇතුළත් වීම වැළැක්වීම
+            
             const lastCoord = updatedPaths[id][updatedPaths[id].length - 1];
             if (!lastCoord || lastCoord[0] !== container.latitude || lastCoord[1] !== container.longitude) {
               updatedPaths[id].push([container.latitude, container.longitude]);
@@ -181,7 +181,7 @@ const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContai
           return updatedPaths;
         });
 
-        // 2. අලුත් Container එකක් ආවොත්, ඊට අදාළ Planned Route එක පමණක් Fetch කිරීම
+        
         activeLiveData.forEach(async (container) => {
           const id = container.containerId;
           
@@ -201,7 +201,7 @@ const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContai
                   const geojsonCoords = osrmData.routes[0].geometry.coordinates;
                   const leafletCoords = geojsonCoords.map(coord => [coord[1], coord[0]]);
                   
-                  // අදාළ Container ID එකට අදාළව මාර්ගය State එකට සේව් කිරීම
+                  
                   setPlannedRoutes(prevRoutes => ({
                     ...prevRoutes,
                     [id]: leafletCoords
@@ -270,7 +270,7 @@ const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContai
           </>
         )}
 
-        {/* සියලුම කන්ටේනර් වල ආරක්ෂිත කලාප (Buffer) සහ සැලසුම් කළ මාර්ග (Planned Route) ඇඳීම */}
+        
         {Object.entries(plannedRoutes)
           .filter(([id]) => tripStatuses[id] !== 'COMPLETED')
           .map(([id, coords]) => (
@@ -280,7 +280,7 @@ const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContai
           </React.Fragment>
           ))}
 
-        {/* සියලුම කන්ටේනර් වල ගමන් කළ පථයන් (Traveled Paths) ඇඳීම */}
+        
         {Object.entries(traveledPaths)
           .filter(([id]) => tripStatuses[id] !== 'COMPLETED')
           .map(([id, pathCoords]) => (
@@ -299,7 +299,7 @@ const LiveMap = ({ trackedContainer, showActiveContainers = true, onActiveContai
             />
           ))}
 
-        {/* සජීවී ලොකේෂන් පෙන්වන Markers */}
+        
         {activeContainers.map((container) => (
           <Marker key={container.containerId} position={[container.latitude, container.longitude]}>
             <Popup>

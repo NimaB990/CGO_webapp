@@ -27,7 +27,6 @@ import com.securetrack.backend.security.UserPrincipal;
 
 import lombok.RequiredArgsConstructor;
 
-
 @RestController
 @RequestMapping("/api/alerts")
 @RequiredArgsConstructor

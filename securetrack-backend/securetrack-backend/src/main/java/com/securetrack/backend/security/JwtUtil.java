@@ -11,10 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.function.Function;
 
-/**
- * Generates and validates JWT access tokens used to authenticate every
- * /api/** request after login (Spring Security stateless session).
- */
 @Component
 public class JwtUtil {
 

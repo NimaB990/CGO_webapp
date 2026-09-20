@@ -11,10 +11,6 @@ import lombok.experimental.SuperBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Superclass for all internal Sri Lanka Customs staff members.
- * Concrete subclasses: {@link Admin}, {@link CustomOfficer}, {@link Inspector}.
- */
 @Entity
 @Table(name = "staff")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -57,13 +53,11 @@ public abstract class Staff {
     @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AuditLog> auditLogs = new ArrayList<>();
 
-    // --- Notification Settings ---
     private boolean twoFactorAuth;
     private boolean emailAlerts = true;
     private boolean smsAlerts = false;
     private boolean systemAlerts = true;
 
-    // --- Preferences ---
     private String language = "English";
     private String timezone = "Asia/Colombo";
 }

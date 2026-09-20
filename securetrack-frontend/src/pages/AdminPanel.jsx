@@ -89,10 +89,8 @@ function AdminPanel() {
       setLogs(res.data);
     } catch (err) {
       console.error("Failed to fetch logs", err);
-      setLogs([
-        { id: 1, action: "User 'johndoe' logged in", timestamp: new Date().toISOString(), user: "System" },
-        { id: 2, action: "Container 4 assigned to Galle Route", timestamp: new Date(Date.now() - 3600000).toISOString(), user: "Admin" }
-      ]);
+      // දෝෂයක් ආවොත් Dummy දත්ත වෙනුවට Array එක හිස් (Empty) කරයි.
+      setLogs([]); 
     } finally {
       setLoading(false);
     }
@@ -446,17 +444,23 @@ function AdminPanel() {
             <h3 className="font-semibold text-slate-800 flex items-center gap-2"><Activity size={18}/> Activity Audit Logs</h3>
           </div>
           <ul className="divide-y divide-gray-100 max-h-[500px] overflow-y-auto">
-            {loading ? <li className="p-8 text-center text-slate-500">Loading logs...</li> : logs.map((log, index) => (
-              <li key={index} className="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row gap-2 sm:justify-between sm:items-center">
-                <div>
-                  <p className="text-sm font-medium text-slate-900">{log.action || log.message}</p>
-                  <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">User: <span className="font-medium text-slate-700">{log.staff?.username || log.user || 'System'}</span></p>
-                </div>
-                <div className="text-xs text-slate-400 flex items-center gap-1">
-                  <Clock size={12} /> {formatUserDateTime(log.activeTime || log.timestamp || log.createdAt)}
-                </div>
-              </li>
-            ))}
+            {loading ? (
+              <li className="p-8 text-center text-slate-500">Loading logs...</li>
+            ) : logs.length === 0 ? (
+              <li className="p-8 text-center text-slate-500">No system logs found.</li>
+            ) : (
+              logs.map((log, index) => (
+                <li key={index} className="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row gap-2 sm:justify-between sm:items-center">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">{log.action || log.message}</p>
+                    <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">User: <span className="font-medium text-slate-700">{log.staff?.username || log.user || 'System'}</span></p>
+                  </div>
+                  <div className="text-xs text-slate-400 flex items-center gap-1">
+                    <Clock size={12} /> {formatUserDateTime(log.activeTime || log.timestamp || log.createdAt)}
+                  </div>
+                </li>
+              ))
+            )}
           </ul>
         </div>
       )}

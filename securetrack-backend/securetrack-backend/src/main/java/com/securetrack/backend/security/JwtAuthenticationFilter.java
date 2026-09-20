@@ -18,10 +18,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Reads the "Authorization: Bearer <token>" header, validates it, and
- * populates the SecurityContext so downstream @PreAuthorize / RBAC checks work.
- */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -65,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception ex) {
-            // Invalid/expired token - leave context unauthenticated; entry point will return 401
+
             SecurityContextHolder.clearContext();
         }
 

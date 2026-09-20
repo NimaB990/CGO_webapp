@@ -11,11 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Unified Spring Security principal bridging the three distinct login-capable
- * entity tables (Staff-subclasses, Driver, Owner) into a single UserDetails
- * implementation carrying the entity's primary key + RBAC authority.
- */
 @Getter
 public class UserPrincipal implements UserDetails {
 

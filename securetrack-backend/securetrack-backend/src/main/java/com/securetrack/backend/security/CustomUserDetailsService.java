@@ -14,10 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-/**
- * Resolves a login "username" against the three login-capable entity tables,
- * in order: Staff (Admin/CustomOfficer/Inspector) -> Driver -> Owner.
- */
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {

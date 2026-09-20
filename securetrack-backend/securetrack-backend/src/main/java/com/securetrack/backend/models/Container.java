@@ -26,10 +26,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Container - the physical customs container being monitored end-to-end,
- * from Initialize Container Tracking through Complete Shipment/Unlock Seal.
- */
 @Entity
 @Table(name = "container")
 @Data
@@ -52,7 +48,6 @@ public class Container {
     @Column(name = "assigned_route", length = 255)
     private String assignedRoute;
 
-    /** Denormalized reference id kept per SRS; the real association is the OneToOne below. */
     @Column(name = "iot_module_id", insertable = false, updatable = false)
     private Long iotModuleId;
 

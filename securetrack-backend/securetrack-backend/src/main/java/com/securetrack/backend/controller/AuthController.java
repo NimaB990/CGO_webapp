@@ -11,10 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * AuthController - open (/auth/**) endpoints used for authentication.
- * Serves Staff, Driver and Owner logins uniformly, returning a signed JWT.
- */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -28,8 +24,7 @@ public class AuthController {
                                                 HttpServletRequest httpRequest) {
         return ResponseEntity.ok(authService.login(request, httpRequest));
     }
-    
-    // තාවකාලිකව Admin කෙනෙක්ව System එක හරහාම Create කරගැනීමට අලුතින් දැමූ කොටස
+
     @PostMapping("/setup-admin")
     public ResponseEntity<Object> setupAdmin(@RequestBody UserCreateRequest request) {
         Object created = userManagementService.createUser(request);

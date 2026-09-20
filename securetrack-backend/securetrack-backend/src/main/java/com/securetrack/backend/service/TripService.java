@@ -30,24 +30,15 @@ public class TripService {
         return tripRepository.findDistinctVehicleNumberByVehicleNumberIsNotNull();
     }
 
-    // @Transactional
-    // public Trip updateStatus(Long tripId, Long driverId, String requestedStatus) {
-    //     Trip trip = tripRepository.findByIdAndDriverId(tripId, driverId)
-    //             .orElseThrow(() -> new IllegalArgumentException(
-    //                     "Trip not found for the authenticated driver: " + tripId));
-    //     String currentStatus = trip.getStatus();
-    //     String status = requestedStatus == null ? "" : requestedStatus.trim().toUpperCase();
     @Transactional
     public Trip updateStatus(Long tripId, Long driverId, String requestedStatus) {
-    // Driver ID පරීක්ෂාව ඉවත් කර, Trip ID එකෙන් පමණක් ගමන් වාරය සෙවීම
+
         Trip trip = tripRepository.findById(tripId)
             .orElseThrow(() -> new IllegalArgumentException(
                     "Trip not found with ID: " + tripId));
 
         String currentStatus = trip.getStatus();
         String status = requestedStatus == null ? "" : requestedStatus.trim().toUpperCase();
-    
-    // ... (මෙතැනින් පහළ ඇති ඔබගේ ඉතිරි කේතය එලෙසම තබන්න)
 
         if ("PLANNED".equals(currentStatus) && "ACTIVE".equals(status)) {
             trip.setStartTime(LocalDateTime.now());

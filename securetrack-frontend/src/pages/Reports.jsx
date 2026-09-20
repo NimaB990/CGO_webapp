@@ -7,7 +7,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
-import api from '../api'; // Backend එකට කතා කරන API එක
+import api from '../api'; 
 
 function TrendBadge({ trend, direction }) {
   const Icon = direction === 'up' ? TrendingUp : TrendingDown;
@@ -220,7 +220,7 @@ function Reports() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Reports &amp; Analytics</h2>
@@ -236,7 +236,7 @@ function Reports() {
         </button>
       </div>
 
-      {/* Filter card */}
+      
       <div className="grid grid-cols-1 gap-4 rounded-xl bg-white p-5 shadow-sm sm:grid-cols-3">
         <div>
           <label htmlFor="report-type" className="mb-1.5 block text-sm font-medium text-slate-700">Report Type</label>
@@ -285,7 +285,7 @@ function Reports() {
         </div>
       </div>
 
-      {/* Stat cards */}
+      
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {reportData.statCards.map(({ label, value, trend, direction }) => (
           <div key={label} className="rounded-xl bg-white p-5 shadow-sm">
@@ -296,7 +296,7 @@ function Reports() {
         ))}
       </div>
 
-      {/* Charts */}
+      
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="rounded-xl bg-white p-5 shadow-sm">
           <h3 className="mb-4 font-semibold text-slate-900">Shipment Activity (This Week)</h3>

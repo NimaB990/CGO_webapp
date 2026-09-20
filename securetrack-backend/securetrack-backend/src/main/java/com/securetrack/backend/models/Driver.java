@@ -7,10 +7,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Driver entity - operates the vehicle transporting a monitored Container.
- * Not a subclass of Staff; authenticated separately with DRIVER authority.
- */
 @Entity
 @Table(name = "driver")
 @Data

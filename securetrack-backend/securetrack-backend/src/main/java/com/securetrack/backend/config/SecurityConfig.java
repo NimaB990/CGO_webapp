@@ -59,10 +59,10 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                
+
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
-                
+
                 .requestMatchers(HttpMethod.GET, "/api/trips/driver/active").hasRole("DRIVER")
                 .requestMatchers(HttpMethod.GET, "/api/trips/active")
                     .hasAnyRole("ADMIN", "DRIVER", "OWNER", "CUSTOM_OFFICER", "INSPECTOR")
@@ -73,10 +73,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/trips/*/status").hasRole("DRIVER")
                 .requestMatchers(HttpMethod.POST, "/api/alerts/driver-report").hasRole("DRIVER")
 
-                // Assign Routes සඳහා අවසරය
                 .requestMatchers("/api/trips/**").permitAll()
-                
-                // අලුතින් එකතු කළ පේළිය (IoT Live Tracking දත්ත සඳහා Token නැතුව අවසර දීම)
+
                 .requestMatchers(HttpMethod.GET, "/api/monitoring/vehicle/**")
                     .hasAnyRole("ADMIN", "DRIVER", "OWNER", "CUSTOM_OFFICER", "INSPECTOR")
                 .requestMatchers(HttpMethod.GET, "/api/monitoring/trip/**")

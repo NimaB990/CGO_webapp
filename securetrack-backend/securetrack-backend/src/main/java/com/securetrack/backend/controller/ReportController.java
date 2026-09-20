@@ -29,13 +29,11 @@ public class ReportController {
 
     @GetMapping("/summary")
     public ReportSummaryDTO getReportSummary() {
-        
-        // 1. ඇත්තම Database Counts ගැනීම
+
         long totalContainers = containerRepository.count();
         long totalAlerts = alertRepository.count();
         List<Alert> allAlerts = alertRepository.findAll();
 
-        // 2. Stat Cards සඳහා දත්ත සැකසීම
         List<ReportSummaryDTO.StatCard> statCards = List.of(
             ReportSummaryDTO.StatCard.builder().label("Total Shipments").value(String.valueOf(totalContainers)).trend("+5%").direction("up").build(),
             ReportSummaryDTO.StatCard.builder().label("On-Time Delivery").value("92%").trend("+1.2%").direction("up").build(),
@@ -43,14 +41,13 @@ public class ReportController {
             ReportSummaryDTO.StatCard.builder().label("Avg Transit Time").value("4.5h").trend("-0.1h").direction("down").build()
         );
 
-        // 3. Alert Pie Chart එකට අදාළව Database එකේ Alerts වර්ග කිරීම
         Map<String, Long> alertsByType = allAlerts.stream()
                 .collect(Collectors.groupingBy(a -> a.getType() != null ? a.getType().name() : "OTHER", Collectors.counting()));
 
         List<ReportSummaryDTO.AlertDistribution> alertDist = new ArrayList<>();
         String[] colors = {"#dc2626", "#ea580c", "#f59e0b", "#fbbf24", "#3b82f6"};
         int colorIdx = 0;
-        
+
         for (Map.Entry<String, Long> entry : alertsByType.entrySet()) {
             String formatName = entry.getKey().replace("_", " ");
             alertDist.add(ReportSummaryDTO.AlertDistribution.builder()
@@ -61,12 +58,10 @@ public class ReportController {
             colorIdx++;
         }
 
-        // Database එකේ Alerts මුකුත් නැත්නම් Dummy එකක් යවනවා Chart එක හිස් නොවෙන්න
         if (alertDist.isEmpty()) {
             alertDist.add(ReportSummaryDTO.AlertDistribution.builder().name("No Alerts").value(1).color("#cbd5e1").build());
         }
 
-        // 4. Bar Chart එකට දත්ත සැකසීම
         List<ReportSummaryDTO.ShipmentActivity> shipmentActivity = List.of(
             ReportSummaryDTO.ShipmentActivity.builder().day("Mon").shipments(10).completed(8).build(),
             ReportSummaryDTO.ShipmentActivity.builder().day("Tue").shipments(15).completed(12).build(),

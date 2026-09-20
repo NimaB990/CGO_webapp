@@ -4,21 +4,18 @@ import lombok.Data;
 
 @Data
 public class ProfileDTO {
-    // Profile
+
     private String firstName;
     private String lastName;
     private String email;
     private String phone;
-    
-    // Notifications
+
     private boolean emailAlerts;
     private boolean smsAlerts;
     private boolean systemAlerts;
-    
-    // Security
+
     private boolean twoFactorAuth;
-    
-    // Preferences
+
     private String language;
     private String timezone;
 

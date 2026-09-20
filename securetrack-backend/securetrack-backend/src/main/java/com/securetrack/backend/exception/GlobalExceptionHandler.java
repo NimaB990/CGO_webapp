@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Centralized exception -> HTTP response mapping for all REST controllers. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

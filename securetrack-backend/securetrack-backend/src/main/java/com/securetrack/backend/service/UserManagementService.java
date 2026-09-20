@@ -25,11 +25,6 @@ import com.securetrack.backend.repository.StaffRepository;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * UserManagementService - backs the "Manage Users" use case (Admin-only).
- * Creates/updates/deactivates Staff (Admin/CustomOfficer/Inspector), Driver
- * and Owner accounts.
- */
 @Service
 @RequiredArgsConstructor
 public class UserManagementService {
@@ -150,8 +145,6 @@ public class UserManagementService {
         staffRepository.deleteById(staffId);
     }
 
-    // --- අලුතින් එකතු කළ ක්‍රමවේද (Edit, Delete, Toggle Status) ---
-
     @Transactional
     public Object updateUser(String entityType, Long id, UserCreateRequest request) {
         if ("STAFF".equalsIgnoreCase(entityType)) {
@@ -166,7 +159,7 @@ public class UserManagementService {
                 } catch (IllegalArgumentException ignored) {}
             }
             return staffRepository.save(staff);
-            
+
         } else if ("DRIVER".equalsIgnoreCase(entityType)) {
             Driver driver = driverRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Driver not found: " + id));
@@ -175,7 +168,7 @@ public class UserManagementService {
             if (request.getEmail() != null) driver.setEmail(request.getEmail());
             if (request.getVehicleNo() != null) driver.setVehicleNo(request.getVehicleNo());
             return driverRepository.save(driver);
-            
+
         } else if ("OWNER".equalsIgnoreCase(entityType)) {
             Owner owner = ownerRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Owner not found: " + id));

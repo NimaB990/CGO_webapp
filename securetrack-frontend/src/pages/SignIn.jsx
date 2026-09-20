@@ -30,10 +30,21 @@ function SignIn() {
       }
 
       localStorage.setItem('token', token);
+      
+      // Role එක පරීක්ෂා කර Inspector නම් inspector-dashboard වෙත යැවීම
       if (role) {
         localStorage.setItem('role', role);
+        const userRole = role.toUpperCase();
+
+        if (userRole.includes('INSPECTOR')) {
+          navigate('/app/inspector-dashboard');
+        } else {
+          navigate('/app/dashboard');
+        }
+      } else {
+        navigate('/app/dashboard');
       }
-      navigate('/app/dashboard');
+
     } catch (err) {
       if (err.response) {
         const status = err.response.status;
@@ -82,7 +93,7 @@ function SignIn() {
           </p>
         </div>
 
-        {/* Premium Sign-in Card */}
+        {/* Sign-in Card */}
         <div className="rounded-3xl bg-white/95 p-8 sm:p-10 shadow-[0_20px_60px_rgba(8,58,90,0.5)] backdrop-blur-md border border-white/20">
           <h2 className="mb-8 text-2xl font-bold text-slate-900 text-center">
             Welcome Back

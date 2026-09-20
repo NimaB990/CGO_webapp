@@ -22,13 +22,6 @@ import com.securetrack.backend.service.ShipmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-/**
- * ContainerController - covers:
- *  - Initialize Container Tracking (POST /api/containers/initialize)
- *  - View Assigned Route            (GET  /api/containers/{id}/route)
- *  - Complete Shipment/Unlock Seal  (POST /api/containers/{id}/complete)
- *  - General container listing/lookup
- */
 @RestController
 @RequestMapping("/api/containers")
 @RequiredArgsConstructor
@@ -70,7 +63,6 @@ public class ContainerController {
         return ResponseEntity.ok(shipmentService.getAllContainers(principal));
     }
 
-    /** Resolves the Staff entity behind the authenticated principal, for audit attribution. */
     private Staff resolveStaff(UserPrincipal principal) {
         if (principal == null || principal.getUserType() != UserPrincipal.UserType.STAFF) {
             return null;

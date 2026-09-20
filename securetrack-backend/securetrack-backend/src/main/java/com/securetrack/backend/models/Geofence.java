@@ -11,10 +11,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Geofence - a defined corridor/checkpoint used by RouteVerificationService
- * to cross-reference a container's live GPS position against its assigned route.
- */
 @Entity
 @Table(name = "geofence")
 @Data
@@ -37,7 +33,6 @@ public class Geofence {
     @Column(nullable = false)
     private Double longitude;
 
-    /** Expected IoT signal strength (dBm) within this corridor - used to flag dead zones/tamper. */
     @Column(name = "signal_strength")
     private Integer signalStrength;
 

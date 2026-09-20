@@ -8,6 +8,7 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.19.0",
+    "decomment": "^0.9.5",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "leaflet": "^1.9.4",

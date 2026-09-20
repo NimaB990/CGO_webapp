@@ -25,6 +25,7 @@ function parseJwt(token) {
 
 const NAV_ITEMS = [
   { to: '/app/dashboard', label: 'Dashboard', icon: Home, roles: ['ADMIN', 'CUSTOM_OFFICER', 'OWNER'] },
+  { to: '/app/inspector-dashboard', label: 'Inspector Dashboard', icon: Home, roles: ['INSPECTOR'] }, // Inspector සඳහා අලුතින් එකතු කරන ලද ලින්ක් එක
   { to: '/app/alerts', label: 'Alerts', icon: Bell, roles: ['ADMIN', 'CUSTOM_OFFICER', 'OWNER'] },
   { to: '/app/admin', label: 'Admin Panel', icon: Users, roles: ['ADMIN'] },
   { to: '/app/reports', label: 'Reports', icon: FileText, roles: ['ADMIN', 'CUSTOM_OFFICER'] },
@@ -56,6 +57,7 @@ function SidebarLayout() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('role');
     navigate('/');
   };
 
@@ -69,9 +71,9 @@ function SidebarLayout() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* ===================== Sidebar ===================== */}
+      
       <aside className="flex w-64 flex-shrink-0 flex-col bg-[#0B3A5A]">
-        {/* Logo Section */}
+        
         <div className="flex flex-col items-center gap-2 border-b border-white/10 px-6 py-8">
           <img 
             src="/clogo.jpeg" 
@@ -80,7 +82,7 @@ function SidebarLayout() {
           />
         </div>
 
-        {/* Navigation */}
+        
         <nav className="flex-1 space-y-1 px-3 py-5">
           {filteredNavItems.map(({ to, label, icon: Icon }) => (
             <NavLink
@@ -100,7 +102,7 @@ function SidebarLayout() {
           ))}
         </nav>
 
-        {/* Officer profile + logout */}
+        
         <div className="border-t border-white/10 p-3">
           <div className="mb-2 rounded-lg bg-white/5 px-3 py-2.5">
             <p className="text-sm font-semibold text-white capitalize">{currentUser.username}</p>
@@ -117,7 +119,7 @@ function SidebarLayout() {
         </div>
       </aside>
 
-      {/* ===================== Main content ===================== */}
+      
       <div className="flex flex-1 flex-col overflow-hidden">
         <header className="flex flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-8 py-4">
           <div>

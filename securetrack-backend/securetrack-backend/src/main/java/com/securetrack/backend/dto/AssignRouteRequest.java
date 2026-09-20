@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class AssignRouteRequest {
     private Long containerId;
-    private Long moduleId; // IoT Device එකේ ID එක
+    private Long moduleId; 
     private String startName;
     private String endName;
     private String startLat;

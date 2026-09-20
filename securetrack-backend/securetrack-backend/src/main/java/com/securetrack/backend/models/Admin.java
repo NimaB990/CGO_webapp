@@ -9,9 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-/**
- * System administrator. Has full access, incl. user management (/api/admin/**).
- */
 @Entity
 @Table(name = "admin")
 @DiscriminatorValue("ADMIN")
@@ -20,5 +17,5 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class Admin extends Staff {
-    // Admin-specific attributes can be extended here (e.g. adminLevel)
+
 }

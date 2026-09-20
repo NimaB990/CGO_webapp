@@ -7,10 +7,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Owner entity - the cargo/container owner who can view assigned routes
- * and shipment status for containers they own.
- */
 @Entity
 @Table(name = "owner")
 @Data

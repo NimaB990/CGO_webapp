@@ -13,34 +13,34 @@ const TABS = [
 function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
 
-  // --- Profile States ---
+  
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [profileImage, setProfileImage] = useState('');
 
-  // --- Notification States ---
+  
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [smsAlerts, setSmsAlerts] = useState(false);
   const [systemAlerts, setSystemAlerts] = useState(true);
 
-  // --- Security States ---
+  
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [twoFactorAuth, setTwoFactorAuth] = useState(false);
 
-  // --- Preference States ---
+  
   const [language, setLanguage] = useState(() => getStoredLanguage());
   const [timezone, setTimezone] = useState(() => getStoredTimezone());
 
-  // --- UI States ---
+  
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState('');
 
-  // Component එක Load වෙද්දී Database එකෙන් සියලුම Settings ගෙන ඒම
+  
   useEffect(() => {
     applyUserPreferences(getStoredLanguage(), getStoredTimezone());
 
@@ -115,7 +115,7 @@ function Settings() {
     localStorage.removeItem('securetrack-profile-image');
   };
 
-  // ඕනෑම Tab එකක වෙනස්කම් ඇත්තටම Database එකේ Save කිරීම
+  
   const handleSave = async (e, section) => {
     e.preventDefault();
     setIsSaving(true);
@@ -124,7 +124,7 @@ function Settings() {
     }
     
     try {
-      // Security Tab එකේ Password අලුත් කරනවා නම් විතරක් මේ කොටස වැඩ කරයි
+      
       if (section === 'security' && newPassword) {
         if (newPassword !== confirmPassword) {
           alert("New passwords do not match!");
@@ -137,7 +137,7 @@ function Settings() {
         setConfirmPassword('');
       }
 
-      // අනිත් හැම Setting එකක්ම (Profile, Notifications, Preferences) එකපාර Update කිරීම
+      
       await api.put('/api/users/me', { 
         firstName, lastName, email, phone,
         emailAlerts, smsAlerts, systemAlerts,
@@ -167,7 +167,7 @@ function Settings() {
         <p className="mt-1 text-sm text-slate-500">Manage your account and system preferences</p>
       </div>
 
-      {/* Tabs Navigation */}
+      
       <div className="border-b border-gray-200">
         <nav className="flex flex-wrap gap-6">
           {TABS.map(({ key, label, icon: Icon }) => (
@@ -188,7 +188,7 @@ function Settings() {
         </nav>
       </div>
 
-      {/* 1. Profile Tab */}
+      
       {activeTab === 'profile' && (
         <div className="rounded-xl bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
@@ -255,7 +255,7 @@ function Settings() {
         </div>
       )}
 
-      {/* 2. Notifications Tab */}
+      
       {activeTab === 'notifications' && (
         <div className="rounded-xl bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
@@ -301,7 +301,7 @@ function Settings() {
         </div>
       )}
 
-      {/* 3. Security Tab */}
+      
       {activeTab === 'security' && (
         <div className="rounded-xl bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
@@ -358,7 +358,7 @@ function Settings() {
         </div>
       )}
 
-      {/* 4. Preferences Tab */}
+      
       {activeTab === 'preferences' && (
         <div className="rounded-xl bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">

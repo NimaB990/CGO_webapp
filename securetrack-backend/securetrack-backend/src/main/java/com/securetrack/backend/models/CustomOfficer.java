@@ -10,10 +10,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-/**
- * Sri Lanka Customs officer responsible for initializing container tracking
- * and verifying shipments at checkpoints.
- */
 @Entity
 @Table(name = "custom_officer")
 @DiscriminatorValue("CUSTOM_OFFICER")

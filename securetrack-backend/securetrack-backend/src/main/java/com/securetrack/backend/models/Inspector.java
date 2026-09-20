@@ -10,10 +10,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-/**
- * Field/security inspector who monitors real-time alerts and responds to
- * tamper/security exceptions raised by SecurityMonitoringService.
- */
 @Entity
 @Table(name = "inspector")
 @DiscriminatorValue("INSPECTOR")

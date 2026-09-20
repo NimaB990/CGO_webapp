@@ -29,8 +29,6 @@ public class AuthService {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         String token = jwtUtil.generateToken(principal);
 
-        // Only Staff logins are attributable to an AuditLog (FK references Staff);
-        // Driver/Owner logins are traceable via server access logs instead.
         if (principal.getUserType() == UserPrincipal.UserType.STAFF) {
             Staff staff = staffRepository.findById(principal.getId()).orElse(null);
             auditManagementService.logAction(staff, httpRequest, "LOGIN");

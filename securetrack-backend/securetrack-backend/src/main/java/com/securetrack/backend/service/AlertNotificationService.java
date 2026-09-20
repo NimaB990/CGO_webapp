@@ -14,11 +14,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-/**
- * AlertNotificationService - responsible for pushing security-exception
- * notifications to Inspectors/Officers monitoring the "Monitor Real-Time
- * Security Alerts" dashboard, along with real Email and SMS dispatch.
- */
 @Service
 @RequiredArgsConstructor
 public class AlertNotificationService {
@@ -68,7 +63,7 @@ public class AlertNotificationService {
                 containerCode, alert.getType(), alert.getMessage(), alert.getGpsLocation());
 
         System.out.println(">>> ATTEMPTING TO SEND EMAIL TO YOUR GMAIL...");
-        
+
         sendEmailNotification("Chathuranganimantha990@gmail.com", "HIGH SECURITY ALERT: " + alert.getType(), messageBody);
     }
 
@@ -78,7 +73,6 @@ public class AlertNotificationService {
                 containerCode, alert.getType(), alert.getMessage());
     }
 
-    // 1. Email මඟින් දැනුම් දීම
     public void sendEmailNotification(String toEmail, String subject, String messageBody) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -92,7 +86,6 @@ public class AlertNotificationService {
         }
     }
 
-    // 2. Twilio හරහා SMS මඟින් දැනුම් දීම
     public void sendSmsNotification(String toPhoneNumber, String messageBody) {
         try {
             initTwilio();

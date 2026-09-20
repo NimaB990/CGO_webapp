@@ -30,17 +30,7 @@ import com.securetrack.backend.repository.TrackingLogRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
-/**
- * MqttTelemetryService - subscribes to the MQTT 5.0 broker topic that ESP32
- * edge devices publish GPS / magnetic reed-switch / ambient-light telemetry
- * to, normalizes each JSON payload, updates the corresponding IoTModule &
- * TrackingLog, and hands off to SecurityMonitoringService and
- * RouteVerificationService for downstream analysis.
- *
- * Uses the Eclipse Paho MQTTv5 async client directly (rather than
- * spring-integration-mqtt, which only supports MQTT 3.1.1) to satisfy the
- * MQTT 5.0 protocol requirement.
- */
+
 @Service
 @RequiredArgsConstructor
 public class MqttTelemetryService implements MqttCallback {
@@ -121,7 +111,6 @@ public class MqttTelemetryService implements MqttCallback {
         }
     }
 
-    /** Core processing pipeline for a single normalized telemetry reading. */
     public void processTelemetry(TelemetryPayload payload) {
         if (payload.getDeviceUid() == null) {
             log.warn("Telemetry payload missing deviceUid - ignoring: {}", payload);
@@ -135,7 +124,6 @@ public class MqttTelemetryService implements MqttCallback {
         }
         IoTModule module = moduleOpt.get();
 
-        // Update module state
         module.setBatteryLevel(payload.getBatteryLevel());
         module.setLightSensorActive(payload.getLightSensorActive());
         module.setMagnetSensorActive(payload.getMagnetSensorActive());
@@ -155,7 +143,6 @@ public class MqttTelemetryService implements MqttCallback {
         }
         Container container = containerOpt.get();
 
-        // Append tracking checkpoint
         if (payload.getLatitude() != null && payload.getLongitude() != null) {
             TrackingLog checkpoint = TrackingLog.builder()
                     .container(container)
@@ -164,10 +151,8 @@ public class MqttTelemetryService implements MqttCallback {
             trackingLogRepository.save(checkpoint);
         }
 
-        // Dual-sensor tamper verification
         securityMonitoringService.evaluateTamper(container, module, payload);
 
-        // Cross-reference GPS against assigned geofence corridor
         routeVerificationService.verifyRoute(container, payload);
     }
 
@@ -183,7 +168,7 @@ public class MqttTelemetryService implements MqttCallback {
 
     @Override
     public void deliveryComplete(IMqttToken token) {
-        // Not used - this service only subscribes, it does not publish.
+
     }
 
     @Override
@@ -193,6 +178,6 @@ public class MqttTelemetryService implements MqttCallback {
 
     @Override
     public void authPacketArrived(int reasonCode, MqttProperties properties) {
-        // Enhanced MQTT 5.0 auth flow - not required for the default broker configuration.
+
     }
 }

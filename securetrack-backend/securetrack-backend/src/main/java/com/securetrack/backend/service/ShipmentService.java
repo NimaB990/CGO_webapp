@@ -27,11 +27,6 @@ import com.securetrack.backend.security.UserPrincipal;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * ShipmentService - implements the "Initialize Container Tracking" and
- * "Complete Shipment / Unlock Seal" use cases which frame the start and end
- * of a Container's monitored lifecycle.
- */
 @Service
 @RequiredArgsConstructor
 public class ShipmentService {
@@ -86,7 +81,6 @@ public class ShipmentService {
 
         Container saved = containerRepository.save(container);
 
-        // Seed the first tracking checkpoint marking the start of the journey.
         TrackingLog startLog = TrackingLog.builder()
                 .container(saved)
                 .startTime(LocalDateTime.now())
@@ -113,7 +107,6 @@ public class ShipmentService {
         container.setCompletedAt(LocalDateTime.now());
         Container saved = containerRepository.save(container);
 
-        // Close out the most recent open tracking log with an end timestamp.
         List<TrackingLog> logs = trackingLogRepository
                 .findByContainer_ContainerIdOrderByStartTimeDesc(container.getContainerId());
         if (!logs.isEmpty() && logs.get(0).getEndTime() == null) {

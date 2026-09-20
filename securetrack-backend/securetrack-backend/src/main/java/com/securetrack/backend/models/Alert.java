@@ -21,10 +21,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Alert - a security/route exception raised by SecurityMonitoringService or
- * RouteVerificationService, pushed to Inspectors/Officers via AlertNotificationService.
- */
 @Entity
 @Table(name = "alert")
 @Data

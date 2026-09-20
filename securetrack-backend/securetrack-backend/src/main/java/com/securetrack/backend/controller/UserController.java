@@ -27,19 +27,18 @@ public class UserController {
     private final StaffRepository staffRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // 1. ලොග් වී සිටින User ගේ දත්ත Frontend එකට යැවීම
     @GetMapping("/me")
     public ProfileDTO getMyProfile(Principal principal) {
-        // Principal හරහා Token එකෙන් එන Username එක ලබාගැනීම
+
         Staff staff = staffRepository.findByUsername(principal.getName()).orElse(null); 
         ProfileDTO dto = new ProfileDTO();
-        
+
         if (staff != null) {
             dto.setFirstName(staff.getFirstname());
             dto.setLastName(staff.getLastname());
             dto.setEmail(staff.getEmail());
             dto.setPhone("+94 77 1234567"); 
-            
+
             dto.setEmailAlerts(staff.isEmailAlerts());
             dto.setSmsAlerts(staff.isSmsAlerts());
             dto.setSystemAlerts(staff.isSystemAlerts());
@@ -47,11 +46,10 @@ public class UserController {
             dto.setLanguage(staff.getLanguage() != null ? staff.getLanguage() : "English");
             dto.setTimezone(staff.getTimezone() != null ? staff.getTimezone() : "Asia/Colombo");
         }
-        
+
         return dto;
     }
 
-    // 2. Settings ටැබ්ස් වල වෙනස්කම් Save කිරීම
     @PutMapping("/me")
     public ProfileDTO updateProfile(@RequestBody ProfileDTO dto, Principal principal) {
         Staff staff = staffRepository.findByUsername(principal.getName()).orElse(null);
@@ -59,20 +57,19 @@ public class UserController {
             staff.setFirstname(dto.getFirstName());
             staff.setLastname(dto.getLastName());
             staff.setEmail(dto.getEmail());
-            
+
             staff.setEmailAlerts(dto.isEmailAlerts());
             staff.setSmsAlerts(dto.isSmsAlerts());
             staff.setSystemAlerts(dto.isSystemAlerts());
             staff.setTwoFactorAuth(dto.isTwoFactorAuth());
             staff.setLanguage(dto.getLanguage());
             staff.setTimezone(dto.getTimezone());
-            
+
             staffRepository.save(staff);
         }
         return dto;
     }
 
-    // 3. Password වෙනස් කිරීම
     @PostMapping("/me/password")
     public ResponseEntity<?> changePassword(@RequestBody ProfileDTO.PasswordChangeRequest req, Principal principal) {
         Staff staff = staffRepository.findByUsername(principal.getName()).orElse(null);

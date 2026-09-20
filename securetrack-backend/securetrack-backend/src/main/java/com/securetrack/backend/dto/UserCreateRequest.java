@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/** Request body for the "Manage Users" use case - creates Staff, Driver or Owner accounts. */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,10 +27,8 @@ public class UserCreateRequest {
     @NotBlank
     private String password;
 
-    /** One of: ADMIN, CUSTOM_OFFICER, INSPECTOR, DRIVER, OWNER */
     @NotBlank
     private String accountType;
 
-    /** Required only when accountType = DRIVER */
     private String vehicleNo;
 }

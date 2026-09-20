@@ -4,8 +4,8 @@ import api from '../api';
 const INITIAL_FORM = {
   containerId: 0,
   vehicleNumber: '',
-  moduleId: 0, // අලුතින් එකතු කළ IoT Module ID එක
-  allowedDeviationMeters: 200, // අලුතින් එකතු කළ ආරක්ෂිත සීමාව
+  moduleId: 0, 
+  allowedDeviationMeters: 200, 
   startLat: '6.9497',
   startLon: '79.8433',
   endLat: '7.1706',
@@ -22,7 +22,7 @@ function AssignRouteModal({ onAssignSuccess }) {
   const handleChange = ({ target }) => {
     setForm((currentForm) => ({
       ...currentForm,
-      // අලුත් allowedDeviationMeters එකත් Number විදිහට හරවලා State එකට දානවා
+      
       [target.name]: ['containerId', 'moduleId', 'allowedDeviationMeters'].includes(target.name) ? Number(target.value) : target.value,
     }));
   };
@@ -43,7 +43,7 @@ function AssignRouteModal({ onAssignSuccess }) {
     }
   };
 
-  // Form එකේ පෙන්වන්න ඕන fields ටික
+  
   const fields = [
     { name: 'containerId', label: 'Container ID', type: 'number' },
     { name: 'vehicleNumber', label: 'Vehicle Number' },

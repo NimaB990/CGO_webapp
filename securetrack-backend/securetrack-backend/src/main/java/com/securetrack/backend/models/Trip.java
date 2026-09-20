@@ -32,7 +32,6 @@ public class Trip {
     @Column(name = "tracking_reference", nullable = false, unique = true, length = 36)
     private String trackingReference;
 
-    // Container එකත් එක්ක තියෙන සම්බන්ධය (Many Trips -> One Container)
     @ManyToOne
     @JoinColumn(name = "container_id", nullable = false)
     private Container container;
@@ -40,31 +39,24 @@ public class Trip {
     @Column(name = "vehicle_number", nullable = false, length = 20)
     private String vehicleNumber;
 
-    // ස්ථාන වල නම් (පෙන්නන්න ලේසි වෙන්න)
-    private String startLocationName; // උදා: කොළඹ වරාය
-    private String endLocationName;   // උදා: කටුනායක FTZ
+    private String startLocationName; 
+    private String endLocationName;   
 
-    // ආරම්භක ඛණ්ඩාංක
     private double startLat;
     private double startLon;
 
-    // අවසාන ඛණ්ඩාංක
     private double endLat;
     private double endLon;
 
-    // OSRM එකෙන් එන සම්පූර්ණ පාර JSON Array එකක් විදිහට Save කරන්න
     @Column(columnDefinition = "LONGTEXT")
     private String routeCoordinatesJson;
 
-    // 🔴 අලුතින් එකතු කළ කොටස: ආරක්ෂිත මාර්ග කලාපයේ සීමාව (මීටර් වලින්)
     @Column(name = "allowed_deviation_meters")
     @Builder.Default
     private Integer allowedDeviationMeters = 200; 
 
-    // ගමනේ තත්ත්වය (PLANNED, IN_TRANSIT, COMPLETED, FLAGGED)
     private String status;
 
-    // ගමන් ආරම්භ කළ සහ අවසන් කළ වෙලාවන්
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 

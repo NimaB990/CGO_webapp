@@ -3,7 +3,7 @@ import { AlertTriangle, MapPin, Clock } from 'lucide-react';
 import api from '../api'; 
 import { formatUserDateTime } from '../userPreferences';
 
-// Token එකෙන් Role එක ලබාගැනීම සඳහා Function එක
+
 function parseJwt(token) {
   try {
     const base64Url = token.split('.')[1];
@@ -67,10 +67,10 @@ function Alerts() {
   const [alerts, setAlerts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // User ගේ Role එක තබාගැනීම සඳහා State එකක්
+  
   const [userRole, setUserRole] = useState('UNKNOWN');
 
-  // Alerts ලබාගැනීමේ Function එක
+  
   const fetchAlerts = async () => {
     try {
       const response = await api.get('/api/alerts');
@@ -84,7 +84,7 @@ function Alerts() {
   };
 
   useEffect(() => {
-    // Component එක Load වෙද්දී Token එකෙන් Role එක ලබාගැනීම
+    
     const token = localStorage.getItem('token');
     if (token) {
       const decoded = parseJwt(token);
@@ -95,13 +95,13 @@ function Alerts() {
     fetchAlerts();
   }, []);
 
-  // 1. Alert එක Investigate කිරීම (ACKNOWLEDGED)
+  
   const handleInvestigate = async (alertId) => {
     try {
-      // Backend එකේ ඇති නිවැරදි URL එක
+      
       await api.put(`/api/alerts/${alertId}/acknowledge`);
       
-      // UI එක Update කිරීම
+      
       setAlerts(alerts.map(a => 
         (a.alertId === alertId || a.id === alertId) ? { ...a, status: 'ACKNOWLEDGED' } : a
       ));
@@ -111,13 +111,13 @@ function Alerts() {
     }
   };
 
-  // 2. Alert එක Dismiss කිරීම (RESOLVED)
+  
   const handleDismiss = async (alertId) => {
     try {
-      // Backend එකේ ඇති නිවැරදි URL එක
+      
       await api.put(`/api/alerts/${alertId}/resolve`);
       
-      // UI එක Update කිරීම
+      
       setAlerts(alerts.map(a => 
         (a.alertId === alertId || a.id === alertId) ? { ...a, status: 'RESOLVED' } : a
       ));
@@ -243,7 +243,7 @@ function Alerts() {
                   </div>
                 </div>
 
-                {/* බොත්තම් පෙන්වන්නේ CUSTOM_OFFICER ට පමණි */}
+                
                 {!isResolved && userRole === 'CUSTOM_OFFICER' && (
                   <div className="flex flex-shrink-0 gap-2 sm:flex-col">
                     {!isInvestigating && (

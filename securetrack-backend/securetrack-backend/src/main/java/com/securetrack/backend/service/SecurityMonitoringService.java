@@ -8,15 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/**
- * SecurityMonitoringService - implements Dual-Sensor Tamper Verification.
- *
- * A Container's seal is only considered breached when BOTH the magnetic reed
- * switch (door/seal opened) AND the ambient light sensor (light detected
- * inside the container) agree - this dual-condition check filters out false
- * positives caused by a single faulty/noisy sensor, and raises a
- * high-priority Alert only on genuine tamper events.
- */
 @Service
 @RequiredArgsConstructor
 public class SecurityMonitoringService {
@@ -26,16 +17,10 @@ public class SecurityMonitoringService {
     private final AlertRepository alertRepository;
     private final AlertNotificationService alertNotificationService;
 
-    /**
-     * Evaluates the latest sensor readings from an IoT module against the
-     * Container it is attached to, and raises an Alert when tamper is confirmed.
-     */
     public void evaluateTamper(Container container, IoTModule module, TelemetryPayload payload) {
-        boolean magnetSensorActive = Boolean.TRUE.equals(payload.getMagnetSensorActive()); // seal intact/closed
-        boolean lightSensorActive = Boolean.TRUE.equals(payload.getLightSensorActive());   // light detected inside
+        boolean magnetSensorActive = Boolean.TRUE.equals(payload.getMagnetSensorActive()); 
+        boolean lightSensorActive = Boolean.TRUE.equals(payload.getLightSensorActive());   
 
-        // Dual-Sensor Tamper Verification:
-        // Seal broken (magnet sensor reports open) AND light detected inside => confirmed tamper.
         boolean sealBreached = !magnetSensorActive;
         boolean tamperConfirmed = sealBreached && lightSensorActive;
 
@@ -44,7 +29,7 @@ public class SecurityMonitoringService {
                     "Dual-sensor tamper confirmed: seal opened and light detected inside container "
                             + container.getContainerCode());
         } else if (sealBreached) {
-            // Single-sensor trigger only - log as a lower severity advisory, not a confirmed breach.
+
             raiseAlert(container, payload, AlertType.SEAL_BROKEN, AlertSeverity.MEDIUM,
                     "Seal/magnet sensor reports open state on container " + container.getContainerCode()
                             + " (awaiting light-sensor confirmation)");
