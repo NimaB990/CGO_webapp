@@ -8,6 +8,7 @@ import {
   Settings as SettingsIcon,
   LogOut,
   Truck,
+  Search,
 } from 'lucide-react';
 
 function parseJwt(token) {
@@ -25,7 +26,11 @@ function parseJwt(token) {
 
 const NAV_ITEMS = [
   { to: '/app/dashboard', label: 'Dashboard', icon: Home, roles: ['ADMIN', 'CUSTOM_OFFICER', 'OWNER'] },
-  { to: '/app/inspector-dashboard', label: 'Inspector Dashboard', icon: Home, roles: ['INSPECTOR'] }, // Inspector සඳහා අලුතින් එකතු කරන ලද ලින්ක් එක
+  // Available Vehicles tab fakt ADMIN aani CUSTOM_OFFICER sathi:
+  { to: '/app/available-vehicles', label: 'Available Vehicles', icon: Truck, roles: ['ADMIN', 'CUSTOM_OFFICER'] },
+  { to: '/app/inspector-dashboard', label: 'Inspector Dashboard', icon: Home, roles: ['INSPECTOR'] },
+  // Fakt INSPECTOR sathi navin Container Search tab:
+  { to: '/app/container-search', label: 'Search Container', icon: Search, roles: ['INSPECTOR'] },
   { to: '/app/alerts', label: 'Alerts', icon: Bell, roles: ['ADMIN', 'CUSTOM_OFFICER', 'OWNER'] },
   { to: '/app/admin', label: 'Admin Panel', icon: Users, roles: ['ADMIN'] },
   { to: '/app/reports', label: 'Reports', icon: FileText, roles: ['ADMIN', 'CUSTOM_OFFICER'] },

@@ -9,6 +9,8 @@ import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import DriverDashboard from './pages/DriverDashboard';
 import InspectorDashboard from './pages/InspectorDashboard';
+import AvailableVehiclesTab from './components/AvailableVehiclesTab';
+import ContainerSearchTab from './components/ContainerSearchTab';
 
 /**
  * RequireAuth
@@ -40,14 +42,21 @@ function App() {
         >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
+          
+          {/* Custom Officer ට පමණක් Sidebar එකෙන් පෙන්වන Available Vehicles Route එක */}
+          <Route path="available-vehicles" element={<AvailableVehiclesTab />} />
+          
           <Route path="alerts" element={<Alerts />} />
           <Route path="admin" element={<AdminPanel />} />
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
           <Route path="driver" element={<DriverDashboard />} />
           
-          {/* Field Inspector Dashboard එක මෙතැනට සාර්ථකව එකතු කර ඇත */}
+          {/* Field Inspector Dashboard */}
           <Route path="inspector-dashboard" element={<InspectorDashboard />} />
+
+          {/* Field Inspector ට පමණක් Sidebar එකෙන් පෙන්වන Container Search Route එක */}
+          <Route path="container-search" element={<ContainerSearchTab />} />
         </Route>
 
         {/* Fallback: any unknown URL redirects to sign-in */}

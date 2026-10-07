@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Cpu, Key, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Cpu, Key, ShieldCheck, AlertCircle, CheckCircle2, LayoutDashboard, Radio } from 'lucide-react';
 import api from '../api';
+import ActiveModulesTab from '../components/ActiveModulesTab';
 
 function InspectorDashboard() {
+  // Navigation Tab State ('overview' | 'active-units')
+  const [currentTab, setCurrentTab] = useState('overview');
+
   // IoT Module Registration States
   const [deviceUid, setDeviceUid] = useState('');
   const [deviceStatus, setDeviceStatus] = useState('ACTIVE');
@@ -27,7 +31,6 @@ function InspectorDashboard() {
 
     setIsPairingLoading(true);
     try {
-      // IoTModuleController හි ඇති /api/iot-modules/register වෙත ඉල්ලීම යැවීම
       await api.post('/api/iot-modules/register', {
         deviceUid: deviceUid.trim(),
         status: deviceStatus,
@@ -70,119 +73,159 @@ function InspectorDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900">Field Inspector Dashboard</h2>
-        <p className="mt-1 text-sm text-slate-500">Manage IoT module registrations and container RFID access control.</p>
+      {/* Header සහ Navigation Tabs */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">Field Inspector Dashboard</h2>
+          <p className="mt-1 text-sm text-slate-500">Manage IoT module registrations, active fleet units, and container access.</p>
+        </div>
+
+        {/* Inspector Navigation Tabs */}
+        <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+          <button
+            onClick={() => setCurrentTab('overview')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
+              currentTab === 'overview'
+                ? 'bg-white text-slate-900 shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <LayoutDashboard size={15} />
+            Field Actions
+          </button>
+
+          <button
+            onClick={() => setCurrentTab('active-units')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
+              currentTab === 'active-units'
+                ? 'bg-[#0B3A5A] text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Radio size={15} />
+            Active IoT Units
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        
-        {/* --- 1. IoT Module Registration Section --- */}
-        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="rounded-lg bg-sky-50 p-2.5 text-[#0B3A5A]">
-              <Cpu size={22} />
-            </div>
-            <div>
-              <h3 className="font-semibold text-slate-900">IoT Module Registration</h3>
-              <p className="text-xs text-slate-500">Register new ESP32 / Tracking modules</p>
-            </div>
-          </div>
-
-          <form onSubmit={handleRegisterDevice} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Device UID</label>
-              <input
-                type="text"
-                value={deviceUid}
-                onChange={(e) => setDeviceUid(e.target.value)}
-                placeholder="e.g. ESP32-DEV-001"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15"
-              />
+      {/* --- TAB 1: FIELD ACTIONS (Registration & RFID Unlock) --- */}
+      {currentTab === 'overview' && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          
+          {/* IoT Module Registration Section */}
+          <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="rounded-lg bg-sky-50 p-2.5 text-[#0B3A5A]">
+                <Cpu size={22} />
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900">IoT Module Registration</h3>
+                <p className="text-xs text-slate-500">Register new ESP32 / Tracking modules</p>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Module Status</label>
-              <select
-                value={deviceStatus}
-                onChange={(e) => setDeviceStatus(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15 bg-white"
+            <form onSubmit={handleRegisterDevice} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Device UID</label>
+                <input
+                  type="text"
+                  value={deviceUid}
+                  onChange={(e) => setDeviceUid(e.target.value)}
+                  placeholder="e.g. ESP32-DEV-001"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Module Status</label>
+                <select
+                  value={deviceStatus}
+                  onChange={(e) => setDeviceStatus(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15 bg-white"
+                >
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
+                </select>
+              </div>
+
+              {pairingStatus && (
+                <div className={`rounded-lg p-3 text-sm flex items-center gap-2 ${pairingStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                  {pairingStatus.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                  <span>{pairingStatus.message}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isPairingLoading}
+                className="w-full rounded-lg bg-[#0B3A5A] py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#092f49] disabled:opacity-70"
               >
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-              </select>
-            </div>
-
-            {pairingStatus && (
-              <div className={`rounded-lg p-3 text-sm flex items-center gap-2 ${pairingStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                {pairingStatus.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                <span>{pairingStatus.message}</span>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={isPairingLoading}
-              className="w-full rounded-lg bg-[#0B3A5A] py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#092f49] disabled:opacity-70"
-            >
-              {isPairingLoading ? 'Registering Module...' : 'Register IoT Module'}
-            </button>
-          </form>
-        </div>
-
-        {/* --- 2. RFID / Digital Access Control Section --- */}
-        <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="rounded-lg bg-amber-50 p-2.5 text-amber-600">
-              <Key size={22} />
-            </div>
-            <div>
-              <h3 className="font-semibold text-slate-900">RFID Access & Unlock</h3>
-              <p className="text-xs text-slate-500">Authorize container lock status via RFID tag</p>
-            </div>
+                {isPairingLoading ? 'Registering Module...' : 'Register IoT Module'}
+              </button>
+            </form>
           </div>
 
-          <form onSubmit={handleRfidUnlock} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Container Number</label>
-              <input
-                type="text"
-                value={rfidContainer}
-                onChange={(e) => setRfidContainer(e.target.value)}
-                placeholder="e.g. CONT-9876"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">RFID Tag Code</label>
-              <input
-                type="text"
-                value={rfidTag}
-                onChange={(e) => setRfidTag(e.target.value)}
-                placeholder="e.g. TAG-12345"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15"
-              />
-            </div>
-
-            {unlockStatus && (
-              <div className={`rounded-lg p-3 text-sm flex items-center gap-2 ${unlockStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                {unlockStatus.type === 'success' ? <ShieldCheck size={16} /> : <AlertCircle size={16} />}
-                <span>{unlockStatus.message}</span>
+          {/* RFID / Digital Access Control Section */}
+          <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="rounded-lg bg-amber-50 p-2.5 text-amber-600">
+                <Key size={22} />
               </div>
-            )}
+              <div>
+                <h3 className="font-semibold text-slate-900">RFID Access & Unlock</h3>
+                <p className="text-xs text-slate-500">Authorize container lock status via RFID tag</p>
+              </div>
+            </div>
 
-            <button
-              type="submit"
-              disabled={isUnlockLoading}
-              className="w-full rounded-lg bg-slate-900 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 disabled:opacity-70"
-            >
-              {isUnlockLoading ? 'Processing RFID...' : 'Verify & Unlock Container'}
-            </button>
-          </form>
+            <form onSubmit={handleRfidUnlock} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Container Number</label>
+                <input
+                  type="text"
+                  value={rfidContainer}
+                  onChange={(e) => setRfidContainer(e.target.value)}
+                  placeholder="e.g. CONT-9876"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">RFID Tag Code</label>
+                <input
+                  type="text"
+                  value={rfidTag}
+                  onChange={(e) => setRfidTag(e.target.value)}
+                  placeholder="e.g. TAG-12345"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:border-[#0B3A5A] focus:outline-none focus:ring-2 focus:ring-[#0B3A5A]/15"
+                />
+              </div>
+
+              {unlockStatus && (
+                <div className={`rounded-lg p-3 text-sm flex items-center gap-2 ${unlockStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                  {unlockStatus.type === 'success' ? <ShieldCheck size={16} /> : <AlertCircle size={16} />}
+                  <span>{unlockStatus.message}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isUnlockLoading}
+                className="w-full rounded-lg bg-slate-900 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 disabled:opacity-70"
+              >
+                {isUnlockLoading ? 'Processing RFID...' : 'Verify & Unlock Container'}
+              </button>
+            </form>
+          </div>
+
         </div>
+      )}
 
-      </div>
+      {/* --- TAB 2: ACTIVE IOT UNITS TAB --- */}
+      {currentTab === 'active-units' && (
+        <div className="rounded-xl bg-white p-2 shadow-sm border border-slate-100">
+          <ActiveModulesTab />
+        </div>
+      )}
     </div>
   );
 }
