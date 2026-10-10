@@ -23,6 +23,7 @@ import com.securetrack.backend.repository.GeofenceRepository;
 import com.securetrack.backend.repository.IoTModuleRepository;
 import com.securetrack.backend.repository.OwnerRepository;
 import com.securetrack.backend.repository.TrackingLogRepository;
+import com.securetrack.backend.repository.TripRepository;
 import com.securetrack.backend.security.UserPrincipal;
 
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class ShipmentService {
     private final DriverRepository driverRepository;
     private final GeofenceRepository geofenceRepository;
     private final TrackingLogRepository trackingLogRepository;
+    private final TripRepository tripRepository;
     private final AuditManagementService auditManagementService;
 
     @Transactional
@@ -106,6 +108,15 @@ public class ShipmentService {
         container.setStatus(ContainerStatus.COMPLETED);
         container.setCompletedAt(LocalDateTime.now());
         Container saved = containerRepository.save(container);
+
+        tripRepository.findByContainer_ContainerIdOrderByIdDesc(containerId).stream()
+                .filter(trip -> List.of("PLANNED", "ACTIVE", "IN_TRANSIT", "STARTED", "PENDING", "ASSIGNED")
+                        .contains(trip.getStatus() == null ? null : trip.getStatus().trim().toUpperCase()))
+                .forEach(trip -> {
+                    trip.setStatus("COMPLETED");
+                    trip.setEndTime(LocalDateTime.now());
+                    tripRepository.save(trip);
+                });
 
         List<TrackingLog> logs = trackingLogRepository
                 .findByContainer_ContainerIdOrderByStartTimeDesc(container.getContainerId());

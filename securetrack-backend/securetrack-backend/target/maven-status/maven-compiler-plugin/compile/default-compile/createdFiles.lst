@@ -59,6 +59,7 @@ com\securetrack\backend\dto\LoginResponse$LoginResponseBuilder.class
 com\securetrack\backend\security\JwtAuthenticationFilter.class
 com\securetrack\backend\dto\LoginRequest.class
 com\securetrack\backend\models\Owner.class
+com\securetrack\backend\dto\VehicleRegisterRequest.class
 com\securetrack\backend\service\TripService.class
 com\securetrack\backend\controller\DevicePairingController$UnlockRequest.class
 com\securetrack\backend\service\AuditManagementService.class

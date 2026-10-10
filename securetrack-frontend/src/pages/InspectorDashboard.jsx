@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Cpu, Key, ShieldCheck, AlertCircle, CheckCircle2, LayoutDashboard, Radio } from 'lucide-react';
 import api from '../api';
 import ActiveModulesTab from '../components/ActiveModulesTab';
+import ContainerSearchTab from '../components/ContainerSearchTab';
+import { Search } from 'lucide-react';
 
 function InspectorDashboard() {
   // Navigation Tab State ('overview' | 'active-units')

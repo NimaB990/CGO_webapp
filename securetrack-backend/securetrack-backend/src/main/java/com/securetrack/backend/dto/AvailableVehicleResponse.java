@@ -13,4 +13,6 @@ public class AvailableVehicleResponse {
     private Long driverId;
     private String vehicleNo;
     private String status; // "AVAILABLE"
+    private String driverName;
+    private String driverPhone;
 }

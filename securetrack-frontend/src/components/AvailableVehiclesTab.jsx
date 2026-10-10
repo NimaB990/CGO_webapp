@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Truck, RefreshCw, Search, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Truck, RefreshCw, Search, CheckCircle2, AlertCircle, User, Phone } from 'lucide-react';
 import api from '../api';
 
 const AvailableVehiclesTab = () => {
@@ -104,6 +104,16 @@ const AvailableVehiclesTab = () => {
                   <tr key={item.driverId} className="hover:bg-slate-50/70 transition">
                     <td className="py-4 px-6 font-mono font-bold text-slate-900 text-base">
                       {item.vehicleNo}
+                      <div className="mt-2 flex flex-col gap-1 font-sans text-xs font-normal text-slate-600">
+                        <span className="inline-flex items-center gap-1.5">
+                          <User size={13} />
+                          {item.driverName || 'N/A'}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Phone size={13} />
+                          {item.driverPhone || 'N/A'}
+                        </span>
+                      </div>
                     </td>
                     <td className="py-4 px-6 text-right">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200">

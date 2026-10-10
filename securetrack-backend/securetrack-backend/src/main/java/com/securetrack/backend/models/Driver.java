@@ -23,6 +23,18 @@ public class Driver {
     @Column(name = "vehicle_no", nullable = false, length = 20)
     private String vehicleNo;
 
+    @Column(name = "vehicle_model", length = 100)
+    private String vehicleModel;
+
+    @Column(name = "phone", length = 30)
+    private String phone;
+
+    @Column(name = "nic", length = 30)
+    private String nic;
+
+    @Column(name = "status", length = 20)
+    private String status;
+
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 

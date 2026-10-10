@@ -85,6 +85,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/dashboard/track/**").permitAll()
 
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/vehicles/register").hasRole("ADMIN")
 
                 .requestMatchers(HttpMethod.POST, "/api/geofences/**").hasAnyRole("ADMIN", "INSPECTOR")
                 .requestMatchers(HttpMethod.PUT, "/api/geofences/**").hasAnyRole("ADMIN", "INSPECTOR")

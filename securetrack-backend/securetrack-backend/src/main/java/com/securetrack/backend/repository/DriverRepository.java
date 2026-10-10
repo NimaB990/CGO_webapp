@@ -14,9 +14,13 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
     Optional<Driver> findByUsername(String username);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    boolean existsByVehicleNo(String vehicleNo);
 
-    // Active containers වලට assign නොවූ, සක්‍රීය රියදුරන්ගේ වාහන ලබාගැනීම
-    @Query("SELECT d FROM Driver d WHERE d.active = true AND d.driverId NOT IN " +
-           "(SELECT c.driver.driverId FROM Container c WHERE c.driver IS NOT NULL AND c.status IN ('PENDING', 'IN_TRANSIT'))")
+    // Active trips වලට assign නොවූ, සක්‍රීය රියදුරන්ගේ වාහන ලබාගැනීම
+    @Query("SELECT d FROM Driver d WHERE (d.status = 'ACTIVE' OR d.status = 'AVAILABLE') " +
+           "AND TRIM(UPPER(d.vehicleNo)) NOT IN (" +
+           "SELECT TRIM(UPPER(t.vehicleNumber)) FROM Trip t " +
+           "WHERE t.vehicleNumber IS NOT NULL " +
+           "AND UPPER(TRIM(t.status)) IN ('PLANNED', 'ACTIVE', 'IN_TRANSIT', 'STARTED', 'PENDING', 'ASSIGNED'))")
     List<Driver> findAvailableDrivers();
 }

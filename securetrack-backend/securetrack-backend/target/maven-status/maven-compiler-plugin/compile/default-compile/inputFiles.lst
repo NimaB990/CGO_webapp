@@ -12,9 +12,11 @@ F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\controller\RfidController.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\controller\TripController.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\controller\UserController.java
+F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\controller\VehicleController.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\AlertResponse.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\ApiResponse.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\AssignRouteRequest.java
+F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\AvailableVehicleResponse.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\ContainerInitRequest.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\DriverEmergencyRequest.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\LiveLocationResponse.java
@@ -28,6 +30,7 @@ F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\TripStatusUpdateRequest.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\TripTrackingResponse.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\UserCreateRequest.java
+F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\dto\VehicleRegisterRequest.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\exception\BadRequestException.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\exception\GlobalExceptionHandler.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\exception\ResourceNotFoundException.java
@@ -84,3 +87,4 @@ F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\service\TripAssignmentService.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\service\TripService.java
 F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\service\UserManagementService.java
+F:\NDT\sem3\Project 1\imp\securetrack-backend\securetrack-backend\src\main\java\com\securetrack\backend\service\VehicleService.java

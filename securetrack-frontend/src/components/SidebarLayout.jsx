@@ -9,6 +9,7 @@ import {
   LogOut,
   Truck,
   Search,
+  PlusCircle,
 } from 'lucide-react';
 
 function parseJwt(token) {
@@ -33,6 +34,7 @@ const NAV_ITEMS = [
   { to: '/app/container-search', label: 'Search Container', icon: Search, roles: ['INSPECTOR'] },
   { to: '/app/alerts', label: 'Alerts', icon: Bell, roles: ['ADMIN', 'CUSTOM_OFFICER', 'OWNER'] },
   { to: '/app/admin', label: 'Admin Panel', icon: Users, roles: ['ADMIN'] },
+  { to: '/app/register-vehicle', label: 'Register Vehicle', icon: PlusCircle, roles: ['ADMIN'] },
   { to: '/app/reports', label: 'Reports', icon: FileText, roles: ['ADMIN', 'CUSTOM_OFFICER'] },
   { to: '/app/settings', label: 'Settings', icon: SettingsIcon, roles: ['ADMIN', 'CUSTOM_OFFICER', 'INSPECTOR', 'DRIVER'] },
   { to: '/app/driver', label: 'Driver Dashboard', icon: Truck, roles: ['DRIVER'] },

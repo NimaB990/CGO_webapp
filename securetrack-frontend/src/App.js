@@ -11,6 +11,7 @@ import DriverDashboard from './pages/DriverDashboard';
 import InspectorDashboard from './pages/InspectorDashboard';
 import AvailableVehiclesTab from './components/AvailableVehiclesTab';
 import ContainerSearchTab from './components/ContainerSearchTab';
+import RegisterVehicleTab from './components/RegisterVehicleTab';
 
 /**
  * RequireAuth
@@ -48,6 +49,7 @@ function App() {
           
           <Route path="alerts" element={<Alerts />} />
           <Route path="admin" element={<AdminPanel />} />
+          <Route path="register-vehicle" element={<RegisterVehicleTab />} />
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
           <Route path="driver" element={<DriverDashboard />} />
