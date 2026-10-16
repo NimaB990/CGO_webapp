@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -59,6 +60,29 @@ public class Trip {
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+
+    @Transient
+    public String getRouteName() {
+        if (container != null && container.getAssignedRoute() != null
+                && !container.getAssignedRoute().isBlank()) {
+            return container.getAssignedRoute();
+        }
+        if (startLocationName == null || startLocationName.isBlank()
+                || endLocationName == null || endLocationName.isBlank()) {
+            return null;
+        }
+        return startLocationName + " \u2192 " + endLocationName;
+    }
+
+    @Transient
+    public String getStartLocation() {
+        return startLocationName;
+    }
+
+    @Transient
+    public String getEndLocation() {
+        return endLocationName;
+    }
 
     @PrePersist
     protected void onCreate() {

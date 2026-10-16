@@ -14,8 +14,26 @@ import com.securetrack.backend.models.Trip;
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
 
+    @EntityGraph(attributePaths = {"container", "container.driver"})
     List<Trip> findByContainer_ContainerIdOrderByIdDesc(Long containerId);
-    List<Trip> findByContainer_ContainerIdAndContainer_Owner_OwnerIdOrderByIdDesc(Long containerId, Long ownerId);
+
+    @EntityGraph(attributePaths = {"container", "container.driver"})
+    List<Trip> findByContainer_ContainerIdAndContainer_Owner_OwnerIdOrderByIdDesc(
+            Long containerId, Long ownerId);
+
+    @EntityGraph(attributePaths = {"container", "container.driver", "container.iotModule"})
+    Optional<Trip> findFirstByContainer_ContainerIdOrderByIdDesc(Long containerId);
+
+    @EntityGraph(attributePaths = {"container", "container.driver", "container.iotModule"})
+    Optional<Trip> findFirstByContainer_ContainerIdAndContainer_Owner_OwnerIdOrderByIdDesc(
+            Long containerId, Long ownerId);
+
+    @EntityGraph(attributePaths = {"container", "container.driver", "container.iotModule"})
+    Optional<Trip> findFirstByContainer_ContainerCodeOrderByIdDesc(String containerCode);
+
+    @EntityGraph(attributePaths = {"container", "container.driver", "container.iotModule"})
+    Optional<Trip> findFirstByContainer_ContainerCodeAndContainer_Owner_OwnerIdOrderByIdDesc(
+            String containerCode, Long ownerId);
     List<Trip> findByContainer_Owner_OwnerIdOrderByIdDesc(Long ownerId);
     Optional<Trip> findByTrackingReference(String trackingReference);
     Optional<Trip> findByTrackingReferenceAndContainer_Owner_OwnerId(
@@ -29,6 +47,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     Optional<Trip> findFirstByVehicleNumberIgnoreCaseAndStatusInOrderByStartTimeDescIdDesc(
             String vehicleNumber, List<String> statuses);
     List<String> findDistinctVehicleNumberByVehicleNumberIsNotNull();
+    Optional<Trip> findFirstByContainer_ContainerCodeAndStatusInOrderByIdDesc(
+            String containerCode, List<String> statuses);
 
     @Query("SELECT t FROM Trip t "
             + "JOIN FETCH t.container c "

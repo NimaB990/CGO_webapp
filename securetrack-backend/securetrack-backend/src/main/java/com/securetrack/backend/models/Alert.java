@@ -52,6 +52,18 @@ public class Alert {
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
 
+    @Column(name = "vehicle_number", length = 20)
+    private String vehicleNumber;
+
+    @Column(name = "investigation_description", length = 2000)
+    private String investigationDescription;
+
+    @Column(name = "investigated_at")
+    private LocalDateTime investigatedAt;
+
+    @Column(name = "investigated_by")
+    private Long investigatedBy;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default
@@ -69,6 +81,10 @@ public class Alert {
         }
         if (this.status == null) {
             this.status = AlertStatus.PENDING;
+        }
+        if ((this.vehicleNumber == null || this.vehicleNumber.isBlank()) && this.container != null
+                && this.container.getDriver() != null) {
+            this.vehicleNumber = this.container.getDriver().getVehicleNo();
         }
     }
 }

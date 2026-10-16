@@ -42,6 +42,8 @@ public class SecurityMonitoringService {
         if (module.getBatteryLevel() != null && module.getBatteryLevel() <= 15) {
             Alert alert = Alert.builder()
                     .container(container)
+                    .vehicleNumber(container.getDriver() != null
+                            ? container.getDriver().getVehicleNo() : null)
                     .type(AlertType.LOW_BATTERY)
                     .severity(AlertSeverity.LOW)
                     .message("IoT module battery low (" + module.getBatteryLevel() + "%) on container "
@@ -61,6 +63,8 @@ public class SecurityMonitoringService {
 
         Alert alert = Alert.builder()
                 .container(container)
+                .vehicleNumber(container.getDriver() != null
+                        ? container.getDriver().getVehicleNo() : null)
                 .gpsLocation(gps)
                 .message(message)
                 .type(type)

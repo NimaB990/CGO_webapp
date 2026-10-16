@@ -95,9 +95,14 @@ public class SecurityConfig {
 
                 .requestMatchers(HttpMethod.POST, "/api/containers/*/complete").hasAnyRole("ADMIN", "CUSTOM_OFFICER", "INSPECTOR")
 
+                .requestMatchers(HttpMethod.POST, "/api/iot-modules/register")
+                    .hasAnyRole("INSPECTOR", "CUSTOM_OFFICER", "ADMIN")
+
                 .requestMatchers(HttpMethod.GET, "/api/alerts/**")
                     .hasAnyRole("ADMIN", "DRIVER", "CUSTOM_OFFICER", "INSPECTOR", "OWNER")
                 .requestMatchers(HttpMethod.PUT, "/api/alerts/**")
+                    .hasAnyRole("ADMIN", "CUSTOM_OFFICER", "INSPECTOR")
+                .requestMatchers(HttpMethod.POST, "/api/alerts/*/investigate")
                     .hasAnyRole("ADMIN", "CUSTOM_OFFICER", "INSPECTOR")
 
                 .requestMatchers(HttpMethod.GET, "/api/containers/**").authenticated()

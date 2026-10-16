@@ -37,6 +37,8 @@ public class RouteVerificationService {
             String gps = payload.getLatitude() + "," + payload.getLongitude();
             Alert alert = Alert.builder()
                     .container(container)
+                    .vehicleNumber(container.getDriver() != null
+                            ? container.getDriver().getVehicleNo() : null)
                     .gpsLocation(gps)
                     .type(AlertType.ROUTE_DEVIATION)
                     .severity(AlertSeverity.HIGH)

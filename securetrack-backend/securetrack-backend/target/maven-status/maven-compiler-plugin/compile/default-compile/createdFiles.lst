@@ -48,9 +48,11 @@ com\securetrack\backend\dto\TripTrackingResponse.class
 com\securetrack\backend\exception\GlobalExceptionHandler.class
 com\securetrack\backend\models\Staff.class
 com\securetrack\backend\models\AuditLog.class
+com\securetrack\backend\dto\TripEtaResponse$TripEtaResponseBuilder.class
 com\securetrack\backend\repository\TripLocationRepository.class
 com\securetrack\backend\dto\ProfileDTO$PasswordChangeRequest.class
 com\securetrack\backend\exception\BadRequestException.class
+com\securetrack\backend\dto\TripEtaResponse.class
 com\securetrack\backend\repository\InspectorRepository.class
 com\securetrack\backend\models\ContainerStatus.class
 com\securetrack\backend\service\MqttService$1.class
@@ -59,7 +61,6 @@ com\securetrack\backend\dto\LoginResponse$LoginResponseBuilder.class
 com\securetrack\backend\security\JwtAuthenticationFilter.class
 com\securetrack\backend\dto\LoginRequest.class
 com\securetrack\backend\models\Owner.class
-com\securetrack\backend\dto\VehicleRegisterRequest.class
 com\securetrack\backend\service\TripService.class
 com\securetrack\backend\controller\DevicePairingController$UnlockRequest.class
 com\securetrack\backend\service\AuditManagementService.class

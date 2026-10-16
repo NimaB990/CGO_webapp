@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.securetrack.backend.dto.TelemetryPayload;
 import com.securetrack.backend.exception.BadRequestException;
@@ -16,8 +18,11 @@ import com.securetrack.backend.repository.IoTModuleRepository;
 import com.securetrack.backend.service.MqttTelemetryService;
 
 import jakarta.validation.Valid;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+@RestController
+@RequestMapping("/api/iot-modules")
 @RequiredArgsConstructor
 public class IoTModuleController {
 
@@ -36,20 +41,29 @@ public class IoTModuleController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<IoTModule> register(@RequestBody IoTModule module) {
-        if (module.getDeviceUid() == null || module.getDeviceUid().isBlank()) {
+    public ResponseEntity<IoTModule> register(@RequestBody IotModuleRegistrationRequest request) {
+        if (request.getDeviceUid() == null || request.getDeviceUid().isBlank()) {
             throw new BadRequestException("deviceUid is required to register an IoT module");
         }
-        if (ioTModuleRepository.findByDeviceUid(module.getDeviceUid()).isPresent()) {
-            throw new BadRequestException("Device UID already registered: " + module.getDeviceUid());
+        if (ioTModuleRepository.findByDeviceUid(request.getDeviceUid()).isPresent()) {
+            throw new BadRequestException("Device UID already registered: " + request.getDeviceUid());
         }
+
+        IoTModule module = new IoTModule();
+        module.setDeviceUid(request.getDeviceUid().trim());
         module.setModuleId(null);
-        return ResponseEntity.status(201).body(ioTModuleRepository.save(module));
+        return ResponseEntity.ok(ioTModuleRepository.save(module));
     }
 
     @PostMapping("/telemetry")
     public ResponseEntity<Void> ingestTelemetry(@Valid @RequestBody TelemetryPayload payload) {
         mqttTelemetryService.processTelemetry(payload);
         return ResponseEntity.accepted().build();
+    }
+
+    @Data
+    private static class IotModuleRegistrationRequest {
+        private String deviceUid;
+        private String status;
     }
 }

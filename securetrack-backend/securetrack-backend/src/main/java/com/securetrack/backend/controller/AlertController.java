@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.securetrack.backend.dto.AlertResponse;
+import com.securetrack.backend.dto.AlertInvestigationRequest;
 import com.securetrack.backend.dto.DriverEmergencyRequest;
 import com.securetrack.backend.exception.ResourceNotFoundException;
 import com.securetrack.backend.models.Alert;
@@ -34,6 +35,7 @@ public class AlertController {
 
     private final AlertRepository alertRepository;
     private final TripRepository tripRepository;
+    private final com.securetrack.backend.service.AlertService alertService;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'DRIVER', 'CUSTOM_OFFICER', 'INSPECTOR', 'OWNER')")
@@ -70,6 +72,7 @@ public class AlertController {
                 .orElseThrow(() -> new ResourceNotFoundException("Trip not found for driver: " + request.getTripId()));
         Alert alert = Alert.builder()
                 .container(trip.getContainer())
+                .vehicleNumber(trip.getVehicleNumber())
                 .message(request.getMessage().trim())
                 .type(AlertType.DRIVER_EMERGENCY)
                 .severity(AlertSeverity.HIGH)
@@ -116,6 +119,24 @@ public class AlertController {
         return ResponseEntity.ok(toResponse(alertRepository.save(alert)));
     }
 
+    @PostMapping("/{alertId}/investigate")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOM_OFFICER', 'INSPECTOR')")
+    public ResponseEntity<AlertResponse> investigateAlert(
+            @PathVariable Long alertId,
+            @RequestBody AlertInvestigationRequest request,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(toResponse(
+                alertService.investigate(alertId, request, principal != null ? principal.getId() : null)));
+    }
+
+    @GetMapping("/vehicle/{vehicleNumber}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER', 'CUSTOM_OFFICER', 'INSPECTOR')")
+    public ResponseEntity<List<AlertResponse>> getAlertsForVehicle(
+            @PathVariable String vehicleNumber) {
+        return ResponseEntity.ok(alertService.findByVehicleNumber(vehicleNumber).stream()
+                .map(this::toResponse).toList());
+    }
+
     private AlertResponse toResponse(Alert alert) {
         return AlertResponse.builder()
                 .alertId(alert.getAlertId())
@@ -127,6 +148,10 @@ public class AlertController {
                 .severity(alert.getSeverity())
                 .status(alert.getStatus())
                 .sentAt(alert.getSentAt())
+                .vehicleNumber(alertService.resolveVehicleNumber(alert))
+                .investigationDescription(alert.getInvestigationDescription())
+                .investigatedAt(alert.getInvestigatedAt())
+                .investigatedBy(alert.getInvestigatedBy())
                 .build();
     }
 }

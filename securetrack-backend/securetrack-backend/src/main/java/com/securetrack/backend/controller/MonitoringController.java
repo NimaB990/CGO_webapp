@@ -167,6 +167,7 @@ public class MonitoringController {
 
                     Alert alert = new Alert();
                     alert.setContainer(container);
+                    alert.setVehicleNumber(activeTrip.getVehicleNumber());
 
                     alert.setType(AlertType.ROUTE_DEVIATION); 
                     alert.setSeverity(AlertSeverity.HIGH); 

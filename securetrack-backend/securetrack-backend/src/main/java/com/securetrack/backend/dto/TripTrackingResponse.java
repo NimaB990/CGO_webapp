@@ -16,4 +16,6 @@ public class TripTrackingResponse {
     private String endLocation;
     private String currentStatus;
     private String status;
+    private String driverName;
+    private String driverPhone;
 }

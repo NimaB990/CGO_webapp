@@ -2,6 +2,7 @@ package com.securetrack.backend.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.securetrack.backend.dto.TripAssignmentRequest;
+import com.securetrack.backend.dto.TripEtaResponse;
 import com.securetrack.backend.dto.TripTrackingResponse;
 import com.securetrack.backend.exception.ResourceNotFoundException;
 import com.securetrack.backend.models.Container;
 import com.securetrack.backend.models.IoTModule;
 import com.securetrack.backend.models.Trip;
 import com.securetrack.backend.repository.ContainerRepository;
+import com.securetrack.backend.repository.DriverRepository;
 import com.securetrack.backend.repository.IoTModuleRepository;
 import com.securetrack.backend.repository.TripRepository;
 import com.securetrack.backend.security.UserPrincipal;
@@ -42,6 +45,9 @@ public class TripController {
 
     @Autowired
     private TripRepository tripRepository;
+
+    @Autowired
+    private DriverRepository driverRepository;
 
     @Autowired
     private IoTModuleRepository iotModuleRepository;
@@ -100,6 +106,12 @@ public class TripController {
                 List.of("PLANNED", "ACTIVE")));
     }
 
+    @GetMapping("/{vehicleNo}/eta")
+    @PreAuthorize("hasAnyRole('CUSTOM_OFFICER', 'INSPECTOR', 'OWNER')")
+    public ResponseEntity<TripEtaResponse> getEtaByVehicleNo(@PathVariable String vehicleNo) {
+        return ResponseEntity.ok(tripService.getEtaByVehicleNo(vehicleNo));
+    }
+
     @GetMapping("/debug/vehicles")
     @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOM_OFFICER')")
     public ResponseEntity<List<String>> getSavedVehicleNumbers() {
@@ -126,23 +138,54 @@ public class TripController {
                 tripId, principal.getId(), requestedStatus));
     }
 
-    @GetMapping("/container/{containerId}")
-    public ResponseEntity<?> getTripForContainer(@PathVariable Long containerId,
+    @GetMapping("/container/{containerIdentifier}")
+    public ResponseEntity<?> getTripForContainer(
+            @PathVariable("containerIdentifier") String containerIdentifier,
                                                   @AuthenticationPrincipal UserPrincipal principal) {
         try {
-            List<Trip> trips;
-            if (principal != null && "OWNER".equals(principal.getRole())) {
-            trips = tripRepository.findByContainer_ContainerIdAndContainer_Owner_OwnerIdOrderByIdDesc(
-                containerId, principal.getId());
-            } else {
-            trips = tripRepository.findByContainer_ContainerIdOrderByIdDesc(containerId);
-            }
+            String normalizedIdentifier = containerIdentifier.trim();
+            Long ownerId = principal != null && "OWNER".equals(principal.getRole())
+                    ? principal.getId() : null;
+            Optional<Trip> latestTrip = tripService
+                    .findLatestByContainerIdentifier(normalizedIdentifier, ownerId);
 
-            if (trips.isEmpty()) {
+            if (latestTrip.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
 
-            return ResponseEntity.ok(trips.get(0));
+            Trip trip = latestTrip.get();
+            Container container = trip.getContainer();
+            IoTModule iotModule = container.getIotModule();
+            String currentStatus = container.getStatus() != null
+                    ? container.getStatus().name() : trip.getStatus();
+            com.securetrack.backend.models.Driver driver = container.getDriver();
+            if (driver == null && trip.getVehicleNumber() != null) {
+                driver = driverRepository.findByVehicleNo(trip.getVehicleNumber()).orElse(null);
+            }
+            String driverName = null;
+            String driverPhone = null;
+            if (driver != null) {
+                String firstName = driver.getFirstname();
+                String lastName = driver.getLastname();
+                driverName = ((firstName == null ? "" : firstName) + " "
+                        + (lastName == null ? "" : lastName)).trim();
+                driverPhone = driver.getPhone();
+            }
+
+            return ResponseEntity.ok(TripTrackingResponse.builder()
+                    .trackingReference(trip.getTrackingReference())
+                    .latitude(iotModule != null ? iotModule.getLatitude() : null)
+                    .longitude(iotModule != null ? iotModule.getLongitude() : null)
+                    .vehicleNumber(trip.getVehicleNumber())
+                    .truckNumber(trip.getVehicleNumber())
+                    .containerNumber(container.getContainerCode())
+                    .startLocation(trip.getStartLocationName())
+                    .endLocation(trip.getEndLocationName())
+                    .currentStatus(currentStatus)
+                    .status(currentStatus)
+                    .driverName(driverName)
+                    .driverPhone(driverPhone)
+                    .build());
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error fetching trip: " + e.getMessage());

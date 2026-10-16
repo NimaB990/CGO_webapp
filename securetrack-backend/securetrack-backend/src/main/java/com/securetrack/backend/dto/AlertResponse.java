@@ -24,4 +24,8 @@ public class AlertResponse {
     private AlertSeverity severity;
     private AlertStatus status;
     private LocalDateTime sentAt;
+    private String vehicleNumber;
+    private String investigationDescription;
+    private LocalDateTime investigatedAt;
+    private Long investigatedBy;
 }
