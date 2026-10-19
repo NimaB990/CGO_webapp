@@ -1,0 +1,53 @@
+[33mcommit 5a0575b55be20389f405e57e06c535f0b6538074[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Nimantha <chathuranganimantha990@gmail.com>
+Date:   Sat Oct 10 22:41:35 2026 +0530
+
+    fix trip completetion
+
+[33mcommit 96dff98d96fd238af72e840fb7a72383512f0735[m
+Author: Nimantha <chathuranganimantha990@gmail.com>
+Date:   Thu Oct 8 02:36:33 2026 +0530
+
+    Add available vehicles tab for custom officer and container search for inspector
+
+[33mcommit 3b3e9825987e2c5f7804e842c0796d1a66fec066[m
+Author: Nimantha <chathuranganimantha990@gmail.com>
+Date:   Mon Sep 21 00:10:21 2026 +0530
+
+    new
+
+[33mcommit 0bc9f962f6c7f652249948a8920ed84a4b71b65b[m
+Author: Nimantha <chathuranganimantha990@gmail.com>
+Date:   Mon Sep 14 18:45:16 2026 +0530
+
+    la
+
+[33mcommit 0ba45cb15163d82e5df79bbfced344851f3e7b16[m
+Author: Nimantha <chathuranganimantha990@gmail.com>
+Date:   Sun Sep 13 02:54:53 2026 +0530
+
+    Update: Completed notification service, real database reports analytics, and monitoring integration
+
+[33mcommit 512a0004ddd587b5686d2b1ec021d13e941964bb[m
+Author: Nimantha <chathuranganimantha990@gmail.com>
+Date:   Wed Sep 9 13:05:46 2026 +0530
+
+    Full webapp
+
+[33mcommit a065bd61e659629359bf0e98abcd863776a5449d[m
+Author: Nimantha <chathuranganimantha990@gmail.com>
+Date:   Thu Sep 3 16:59:15 2026 +0530
+
+    feat: update LiveMap multi-route rendering, fix Alert status endpoints, and add Admin Panel UI layouts
+
+[33mcommit 8aed7259590f41b07d1265d2bd0cf4dd85717b62[m
+Author: Nimantha <chathuranganimantha990@gmail.com>
+Date:   Sun Aug 23 13:23:23 2026 +0530
+
+    Fixed frontend folder
+
+[33mcommit ad7eabd14e7e7ceeb162fdd744161413d1ee841b[m
+Author: Nimantha <chathuranganimantha990@gmail.com>
+Date:   Sun Aug 23 02:26:09 2026 +0530
+
+    Initial commit: SecureTrack SL backend, database, and React map routing setup
