@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Truck, RefreshCw, Search, CheckCircle2, AlertCircle, User, Phone } from 'lucide-react';
+import { RefreshCw, Search, CheckCircle2, AlertCircle, User, Phone } from 'lucide-react';
 import api from '../api';
 
 const AvailableVehiclesTab = () => {
@@ -41,8 +41,7 @@ const AvailableVehiclesTab = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Truck className="text-emerald-600" size={26} />
+          <h2 className="text-2xl font-bold text-slate-800">
             Available Vehicles
           </h2>
           <p className="text-sm text-slate-500 mt-1">
@@ -53,7 +52,7 @@ const AvailableVehiclesTab = () => {
         <button
           onClick={loadVehicles}
           disabled={loading}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition disabled:opacity-50"
+          className="flex items-center gap-2 bg-[#0B3A5A] hover:bg-[#092f49] text-white text-sm font-medium px-4 py-2 rounded-lg transition disabled:opacity-50"
         >
           <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
           Refresh

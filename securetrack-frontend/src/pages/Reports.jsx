@@ -20,6 +20,16 @@ function TrendBadge({ trend, direction }) {
   );
 }
 
+const ALERT_THEME_COLORS = [
+  '#0B3A5A', // Primary dark blue
+  '#22c55e', // Green
+  '#ef4444', // Red accent
+  '#f97316', // Orange accent
+  '#0ea5e9', // Sky blue
+  '#8b5cf6', // Violet
+  '#f59e0b', // Amber
+];
+
 function Reports() {
   const [reportData, setReportData] = useState({
     statCards: [],
@@ -118,58 +128,58 @@ function Reports() {
       return;
     }
 
-    const document = new jsPDF();
-    const pageWidth = document.internal.pageSize.getWidth();
+    const pdfDoc = new jsPDF();
+    const pageWidth = pdfDoc.internal.pageSize.getWidth();
     const summaryCards = reportData.statCards.slice(0, 4);
 
-    document.setFillColor(11, 58, 90);
-    document.rect(0, 0, pageWidth, 44, 'F');
-    document.setFontSize(20);
-    document.setTextColor(255, 255, 255);
-    document.text('SecureTrack Report', 14, 19);
-    document.setFontSize(11);
-    document.setTextColor(226, 232, 240);
-    document.text(`${reportType}  |  ${selectedDateRange}`, 14, 30);
+    pdfDoc.setFillColor(11, 58, 90);
+    pdfDoc.rect(0, 0, pageWidth, 44, 'F');
+    pdfDoc.setFontSize(20);
+    pdfDoc.setTextColor(255, 255, 255);
+    pdfDoc.text('SecureTrack Report', 14, 19);
+    pdfDoc.setFontSize(11);
+    pdfDoc.setTextColor(226, 232, 240);
+    pdfDoc.text(`${reportType}  |  ${selectedDateRange}`, 14, 30);
 
     summaryCards.forEach(({ label, value, trend, direction }, index) => {
       const gap = 4;
       const cardWidth = (pageWidth - 28 - (gap * 3)) / 4;
       const x = 14 + (index * (cardWidth + gap));
-      document.setFillColor(248, 250, 252);
-      document.roundedRect(x, 52, cardWidth, 23, 2, 2, 'F');
-      document.setFontSize(8);
-      document.setTextColor(100, 116, 139);
-      document.text(label, x + 4, 59);
-      document.setFontSize(13);
-      document.setTextColor(15, 23, 42);
-      document.text(String(value), x + 4, 68);
-      document.setFontSize(8);
-      document.setTextColor(direction === 'up' ? 22 : 220, direction === 'up' ? 163 : 38, direction === 'up' ? 74 : 38);
-      document.text(trend || '', x + 4, 73);
+      pdfDoc.setFillColor(248, 250, 252);
+      pdfDoc.roundedRect(x, 52, cardWidth, 23, 2, 2, 'F');
+      pdfDoc.setFontSize(8);
+      pdfDoc.setTextColor(100, 116, 139);
+      pdfDoc.text(label, x + 4, 59);
+      pdfDoc.setFontSize(13);
+      pdfDoc.setTextColor(15, 23, 42);
+      pdfDoc.text(String(value), x + 4, 68);
+      pdfDoc.setFontSize(8);
+      pdfDoc.setTextColor(direction === 'up' ? 22 : 220, direction === 'up' ? 163 : 38, direction === 'up' ? 74 : 38);
+      pdfDoc.text(trend || '', x + 4, 73);
     });
 
     const drawBarChart = (title, labels, series, x, y, width, height) => {
-      document.setFontSize(10);
-      document.setTextColor(15, 23, 42);
-      document.text(title, x, y);
+      pdfDoc.setFontSize(10);
+      pdfDoc.setTextColor(15, 23, 42);
+      pdfDoc.text(title, x, y);
       const chartTop = y + 6;
       const chartHeight = height - 18;
       const chartWidth = width - 8;
       const maxValue = Math.max(...series.flatMap(({ values }) => values), 1);
-      document.setDrawColor(203, 213, 225);
-      document.line(x, chartTop + chartHeight, x + chartWidth, chartTop + chartHeight);
+      pdfDoc.setDrawColor(203, 213, 225);
+      pdfDoc.line(x, chartTop + chartHeight, x + chartWidth, chartTop + chartHeight);
       labels.forEach((label, labelIndex) => {
         const groupWidth = chartWidth / labels.length;
         const barWidth = Math.min(8, (groupWidth - 4) / series.length);
         series.forEach(({ values, color }, seriesIndex) => {
           const barHeight = (values[labelIndex] / maxValue) * chartHeight;
           const barX = x + (labelIndex * groupWidth) + 2 + (seriesIndex * barWidth);
-          document.setFillColor(...color);
-          document.rect(barX, chartTop + chartHeight - barHeight, barWidth - 1, barHeight, 'F');
+          pdfDoc.setFillColor(...color);
+          pdfDoc.rect(barX, chartTop + chartHeight - barHeight, barWidth - 1, barHeight, 'F');
         });
-        document.setFontSize(7);
-        document.setTextColor(100, 116, 139);
-        document.text(String(label), x + (labelIndex * groupWidth) + 2, chartTop + chartHeight + 8, { angle: 0 });
+        pdfDoc.setFontSize(7);
+        pdfDoc.setTextColor(100, 116, 139);
+        pdfDoc.text(String(label), x + (labelIndex * groupWidth) + 2, chartTop + chartHeight + 8, { angle: 0 });
       });
     };
 
@@ -199,19 +209,19 @@ function Reports() {
       54,
     );
 
-    autoTable(document, {
+    autoTable(pdfDoc, {
       startY: chartY + 62,
       head: [columns],
       body: rows,
       headStyles: { fillColor: [11, 58, 90] },
       styles: { fontSize: 10, cellPadding: 3 },
       didDrawPage: ({ pageNumber }) => {
-        document.setFontSize(8);
-        document.setTextColor(100, 116, 139);
-        document.text(`SecureTrack  |  Page ${pageNumber}`, 14, document.internal.pageSize.getHeight() - 10);
+        pdfDoc.setFontSize(8);
+        pdfDoc.setTextColor(100, 116, 139);
+        pdfDoc.text(`SecureTrack  |  Page ${pageNumber}`, 14, pdfDoc.internal.pageSize.getHeight() - 10);
       },
     });
-    document.save('SecureTrack_Report.pdf');
+    pdfDoc.save('SecureTrack_Report.pdf');
   };
 
   if (isLoading) {
@@ -324,16 +334,50 @@ function Reports() {
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
-                  cy="50%"
-                  outerRadius={95}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  cy="45%"
+                  outerRadius={85}
                 >
-                  {reportData.alertDistribution.map((entry) => (
-                    <Cell key={entry.name} fill={entry.color} />
+                  {reportData.alertDistribution.map((entry, index) => (
+                    <Cell
+                      key={`cell-${entry.name || index}`}
+                      fill={ALERT_THEME_COLORS[index % ALERT_THEME_COLORS.length]}
+                    />
                   ))}
                 </Pie>
-                <Tooltip />
-                <Legend />
+                <Tooltip
+                  formatter={(value, name) => {
+                    const total = reportData.alertDistribution.reduce(
+                      (acc, curr) => acc + (Number(curr.value) || 0),
+                      0
+                    );
+                    const pct = total > 0 ? ((Number(value) / total) * 100).toFixed(1) : 0;
+                    return [`${value} alerts (${pct}%)`, name];
+                  }}
+                  contentStyle={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    fontSize: '12px',
+                  }}
+                />
+                <Legend
+                  verticalAlign="bottom"
+                  iconType="circle"
+                  iconSize={10}
+                  wrapperStyle={{
+                    paddingTop: '16px',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    gap: '8px 16px',
+                  }}
+                  formatter={(value) => (
+                    <span className="text-xs font-medium text-slate-700 ml-1">
+                      {value}
+                    </span>
+                  )}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>

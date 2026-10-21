@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Cpu, RefreshCw, AlertCircle } from 'lucide-react';
+import { RefreshCw, AlertCircle } from 'lucide-react';
 
 const ActiveModulesTab = () => {
   const [activeModules, setActiveModules] = useState([]);
@@ -17,8 +17,8 @@ const ActiveModulesTab = () => {
       });
       setActiveModules(response.data);
     } catch (err) {
-      console.error('Active modules ලබා ගැනීමේ දෝෂයකි:', err);
-      setError('Active devices ලබා ගැනීමට නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න.');
+      console.error('Error fetching active modules:', err);
+      setError('Failed to fetch active devices. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -30,15 +30,14 @@ const ActiveModulesTab = () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      {/* Header කොටස */}
+      {/* Header section */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Cpu className="text-sky-600" size={26} />
+          <h1 className="text-2xl font-bold text-slate-800">
             Active IoT Devices
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            දැනට Active තත්වයේ පවතින සියලුම IoT උපාංග ලැයිස්තුව
+            List of all currently active IoT devices
           </p>
         </div>
 
@@ -48,11 +47,11 @@ const ActiveModulesTab = () => {
           className="flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition disabled:opacity-50"
         >
           <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-          නැවත පූරණය කරන්න
+          Refresh
         </button>
       </div>
 
-      {/* දෝෂ පණිවිඩය */}
+      {/* Error banner */}
       {error && (
         <div className="mb-4 p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2 text-sm">
           <AlertCircle size={18} />
@@ -64,11 +63,11 @@ const ActiveModulesTab = () => {
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="py-12 text-center text-slate-500 text-sm">
-            උපාංග පූරණය වෙමින් පවතී...
+            Loading devices...
           </div>
         ) : activeModules.length === 0 ? (
           <div className="py-12 text-center text-slate-500 text-sm">
-            Active තත්වයේ පවතින උපාංග කිසිවක් හමු නොවීය.
+            No active devices found.
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -77,8 +76,8 @@ const ActiveModulesTab = () => {
                 <tr>
                   <th className="py-3.5 px-6">Module ID</th>
                   <th className="py-3.5 px-6">Device UID</th>
-                  <th className="py-3.5 px-6">තත්වය</th>
-                  <th className="py-3.5 px-6">සම්බන්ධතාවය</th>
+                  <th className="py-3.5 px-6">Status</th>
+                  <th className="py-3.5 px-6">Connection</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

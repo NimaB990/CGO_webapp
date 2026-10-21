@@ -39,7 +39,7 @@ function ContainerSearchTab() {
       {/* Search Bar Container */}
       <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100">
         <h3 className="font-semibold text-slate-900 text-lg mb-1">Container Lookup & Transit Info</h3>
-        <p className="text-xs text-slate-500 mb-4">Container ID එක ලබාදී අදාළ Route එක, වාහනය සහ Driver ගේ විස්තර සොයන්න.</p>
+        <p className="text-xs text-slate-500 mb-4">Enter Container ID to search for assigned route, vehicle, and driver details.</p>
 
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">

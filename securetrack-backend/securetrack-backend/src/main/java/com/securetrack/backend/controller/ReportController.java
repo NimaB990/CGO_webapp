@@ -45,7 +45,7 @@ public class ReportController {
                 .collect(Collectors.groupingBy(a -> a.getType() != null ? a.getType().name() : "OTHER", Collectors.counting()));
 
         List<ReportSummaryDTO.AlertDistribution> alertDist = new ArrayList<>();
-        String[] colors = {"#dc2626", "#ea580c", "#f59e0b", "#fbbf24", "#3b82f6"};
+        String[] colors = {"#0B3A5A", "#22c55e", "#ef4444", "#f97316", "#0ea5e9", "#8b5cf6"};
         int colorIdx = 0;
 
         for (Map.Entry<String, Long> entry : alertsByType.entrySet()) {

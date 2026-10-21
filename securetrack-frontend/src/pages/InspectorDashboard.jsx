@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { Cpu, Key, ShieldCheck, AlertCircle, CheckCircle2, LayoutDashboard, Radio } from 'lucide-react';
+import { ShieldCheck, AlertCircle, CheckCircle2, LayoutDashboard, Radio } from 'lucide-react';
 import api from '../api';
 import ActiveModulesTab from '../components/ActiveModulesTab';
-import ContainerSearchTab from '../components/ContainerSearchTab';
-import { Search } from 'lucide-react';
 
 function InspectorDashboard() {
   // Navigation Tab State ('overview' | 'active-units')
@@ -75,7 +73,7 @@ function InspectorDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header සහ Navigation Tabs */}
+      {/* Header and Navigation Tabs */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Field Inspector Dashboard</h2>
@@ -116,14 +114,9 @@ function InspectorDashboard() {
           
           {/* IoT Module Registration Section */}
           <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="rounded-lg bg-sky-50 p-2.5 text-[#0B3A5A]">
-                <Cpu size={22} />
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-900">IoT Module Registration</h3>
-                <p className="text-xs text-slate-500">Register new ESP32 / Tracking modules</p>
-              </div>
+            <div className="mb-4">
+              <h3 className="font-semibold text-slate-900">IoT Module Registration</h3>
+              <p className="text-xs text-slate-500">Register new ESP32 / Tracking modules</p>
             </div>
 
             <form onSubmit={handleRegisterDevice} className="space-y-4">
@@ -169,14 +162,9 @@ function InspectorDashboard() {
 
           {/* RFID / Digital Access Control Section */}
           <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="rounded-lg bg-amber-50 p-2.5 text-amber-600">
-                <Key size={22} />
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-900">RFID Access & Unlock</h3>
-                <p className="text-xs text-slate-500">Authorize container lock status via RFID tag</p>
-              </div>
+            <div className="mb-4">
+              <h3 className="font-semibold text-slate-900">RFID Access & Unlock</h3>
+              <p className="text-xs text-slate-500">Authorize container lock status via RFID tag</p>
             </div>
 
             <form onSubmit={handleRfidUnlock} className="space-y-4">
@@ -212,7 +200,7 @@ function InspectorDashboard() {
               <button
                 type="submit"
                 disabled={isUnlockLoading}
-                className="w-full rounded-lg bg-slate-900 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 disabled:opacity-70"
+                className="w-full rounded-lg bg-[#0B3A5A] py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#092f49] disabled:opacity-70"
               >
                 {isUnlockLoading ? 'Processing RFID...' : 'Verify & Unlock Container'}
               </button>
