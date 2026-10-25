@@ -8,6 +8,7 @@ import com.securetrack.backend.models.Staff;
 
 public interface StaffRepository extends JpaRepository<Staff, Long> {
     Optional<Staff> findByUsername(String username);
+    Optional<Staff> findByEmail(String email);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
 }
