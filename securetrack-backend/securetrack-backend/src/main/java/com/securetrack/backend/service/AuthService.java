@@ -23,8 +23,19 @@ public class AuthService {
     private final AuditManagementService auditManagementService;
 
     public LoginResponse login(LoginRequest request, HttpServletRequest httpRequest) {
+        // Determine the login identifier: prefer username, fall back to email
+        String loginIdentifier = (request.getUsername() != null && !request.getUsername().trim().isEmpty())
+                ? request.getUsername().trim()
+                : (request.getEmail() != null && !request.getEmail().trim().isEmpty())
+                        ? request.getEmail().trim()
+                        : null;
+
+        if (loginIdentifier == null) {
+            throw new IllegalArgumentException("Either username or email must be provided");
+        }
+
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(loginIdentifier, request.getPassword()));
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         String token = jwtUtil.generateToken(principal);
