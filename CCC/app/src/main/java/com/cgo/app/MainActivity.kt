@@ -16,28 +16,28 @@ class MainActivity : ComponentActivity() {
 
         webView = WebView(this)
 
-        // Web Settings සකස් කිරීම
+        // Web Settings 
         val webSettings: WebSettings = webView.settings
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true
         webSettings.allowFileAccess = true
 
-        // Full Desktop Layout එක Mobile Screen එකට Fit වන පරිදි Zoom-out කිරීම:
+        // Full Desktop Layout, Mobile Screen Fit
         webSettings.useWideViewPort = true
         webSettings.loadWithOverviewMode = true
         webSettings.setSupportZoom(true)
         webSettings.builtInZoomControls = true
         webSettings.displayZoomControls = false
 
-        // Scale එක 40% ලෙස Force කිරීම
+        // Scale Force 40% 
         webView.setInitialScale(40)
 
         webView.webViewClient = WebViewClient()
-        webView.loadUrl("http://10.199.92.163:3000")
+        webView.loadUrl("http://10.35.223.85:3000")
 
         setContentView(webView)
 
-        // Back Button එක සැකසීම
+        // Back Button 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (webView.canGoBack()) {
